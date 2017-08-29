@@ -10,19 +10,19 @@
 In this assignment, you will write a command line utility to encrypt and
 decrypt strings and files. The first encryption scheme is a Polybius cipher
 and the second is a Fractionated Morse cipher. The goal of this homework is to
-familiarize yourself with C programming, with a focus on input/output, strings
+familiarize yourself with C programming, with a focus on input/output, strings 
 in C, and the use of pointers.
 
 You **MUST** write your helper functions in a file separate from `main.c`. The
 `main.c` file **MUST ONLY** contain `#include`s, local `#define`s and the `main`
 function. This is the only requirement for project structure. Beyond this, you
-may have as many or as few additional `.c` files in the `src` directory as you
-wish. Also, you may declare as many or as few headers as you wish. In this
+may have as many or as few additional `.c` files in the `src` directory as you 
+wish. Also, you may declare as many or as few headers as you wish. In this 
 document, we use `hw1.c` as our example file containing helper functions.
 
 > :scream: Array indexing (**'A[]'**) is not allowed in this assignment. You
 > **MUST USE** pointer arithmetic instead. All necessary arrays are declared in
-> the `hw1.h` header file. You **MUST USE** these arrays. **DO NOT** create
+> the `const.h` header file. You **MUST USE** these arrays. **DO NOT** create
 > your own arrays. We **WILL** check for this.
 
 # Getting Started
@@ -90,9 +90,9 @@ while coding (e.g. debugging output).**
 In this part, you will write a function to validate the arguments passed to your
 program via the command line. Your program will support the following flags:
 
-- If the `-h` flag is provided, you will display the usage for the program and
+- If the `-h` flag is provided, you will display the usage for the program and 
   exit with an `EXIT_SUCCESS` return code
-- If no flags are provided, you will display the usage and return with an
+- If no flags are provided, you will display the usage and return with an 
 `EXIT_FAILURE` return code
 - If the `-p` flag is provided, you will perform Polybius encryption/decryption
 (Part 2)
@@ -102,7 +102,7 @@ encryption/decryption (Part 3)
 > The `-p` and `-f` flags are not allowed to be used in combination with each
 > other
 
-> :nerd: `EXIT_SUCCESS` and `EXIT_FAILURE` are macros defined in `<stdlib.h>` which
+> :nerd: `EXIT_SUCCESS` and `EXIT_FAILURE` are macros defined in `<stdlib.h>` which 
 > represent success and failure return codes respectively.
 
 Some of these operations will also need other command line arguments which are
@@ -420,8 +420,8 @@ during encryption, your program must stop encryption and exit with
 
 ### Sample Encryption Execution
 
-**NOTE:** In the following examples, the program encrypts one line at a time
-and stops encrypting after it reads `^d` (control-d) from `stdin`. Entering `^d`
+**NOTE:** In the following examples, the program encrypts one line at a time 
+and stops encrypting after it reads `^d` (control-d) from `stdin`. Entering `^d` 
 into a terminal in a UNIX system signals an `EOF` (end of file) to the program.
 
 > :nerd: `EOF` is not actually a character in a file (i.e. it does not have a
@@ -484,7 +484,7 @@ $ echo $?
 $
 </pre>
 
-# Testing With Bash
+# Testing With Bash 
 There are a few different ways of testing your program. You can encrypt a file
 and verify manually, but this is tedious. You can also write criterion unit
 tests, but this only verifies that individual units are working properly (more
@@ -520,7 +520,7 @@ $ 0
 
 
 - `diff` is a program that displays the difference between two files.
-- `<(...)` is known as process substitution. It is allows the output of the
+- `<(...)` is known as process substitution. It is allows the output of the 
 - program(s) inside the parentheses to appear as a file for the outer program.
 
 Because both strings are identical, `diff` outputs nothing.
@@ -838,7 +838,7 @@ correctly when the `-h` flag is passed in.
 - `validargs_encrypt_test` ensures that `validargs` sets the Fractionated
 Morse bit correctly when the `-f` flag is passed in.
 - `help_system_test` uses the `system` syscall to execute your program through
-Bash and checks to see that your program returns with `EXIT_SUCCESS`.
+Bash and checks to see that your program returns with `EXIT_SUCCESS`. 
 
 ## Compiling and Running Tests
 
