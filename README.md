@@ -38,7 +38,7 @@ repo will be the file that is preserved.
 To merge, use this command:
 
 ```
-git merge -m "Merging HW1_CODE" HW1_CODE --strategy-option theirs
+git merge -m "Merging HW1_CODE" HW1_CODE/master --strategy-option theirs
 ```
 
 Here is the structure of the base code:
