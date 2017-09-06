@@ -32,8 +32,7 @@ unsigned short validargs(int argc, char **argv) {
     printf("argc value: %d\n", argc);
 
     if(isModeZero(argc, argv) == true){
-        printf("%x\n", 0x0000);
-        return 0x0000;
+        return 0;
     }
 
     return mode;
@@ -44,7 +43,32 @@ bool isModeZero(int argc, char** argv){
     if (argc > 7 || argc < 2){
         return true;
     }
-    else return false;
+
+    char **iterator = argv + 1, indCount = 1;
+    if( *(*(argv++)+1)  == 'h') {
+        printf("%s\n", "Increment");
+        iterator++;
+    }
+
+
+    for(; iterator != argv + argc; iterator++){
+        for(char *charItr = *iterator; *charItr != '\0'; charItr++){
+            printf("%c ", *charItr);
+            if(*charItr == '-') continue;
+            switch(indCount){
+                case 1:
+                    if(*charItr != 'p' && *charItr != 'f') return true;
+                    printf("%s\n", "CASE 1");
+                    break;
+                case 2:
+                    if(*charItr != 'e' && *charItr != 'd') return true;
+                    printf("%s\n", "CAse 2");
+                    break;
+            }
+        }
+    }
+
+    return false;
 }
 
 

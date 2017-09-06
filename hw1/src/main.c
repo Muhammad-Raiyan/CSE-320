@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     }
 
     else {
-        //printf("%s\n", "FAIL");
+        printf("%s\n", "FAIL");
         USAGE(argv[0], EXIT_FAILURE);
         return EXIT_FAILURE;
     }
