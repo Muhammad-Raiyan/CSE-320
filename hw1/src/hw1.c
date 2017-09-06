@@ -26,6 +26,25 @@
  * @param argv The argument strings passed to the program from the CLI.
  * @return Refer to homework document for the return value of this function.
  */
+
 unsigned short validargs(int argc, char **argv) {
-    return 0x8000;
+    unsigned short mode = 0x8000;
+    printf("argc value: %d\n", argc);
+
+    if(isModeZero(argc, argv) == true){
+        printf("%x\n", 0x0000);
+        return 0x0000;
+    }
+
+    return mode;
 }
+
+bool isModeZero(int argc, char** argv){
+
+    if (argc > 7 || argc < 2){
+        return true;
+    }
+    else return false;
+}
+
+

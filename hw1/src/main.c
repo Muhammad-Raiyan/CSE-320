@@ -25,9 +25,14 @@ int main(int argc, char **argv)
 
     if(mode & 0x8000) {
         USAGE(argv[0], EXIT_SUCCESS);
+        return EXIT_SUCCESS;
     }
 
-    return EXIT_SUCCESS;
+    else {
+        //printf("%s\n", "FAIL");
+        USAGE(argv[0], EXIT_FAILURE);
+        return EXIT_FAILURE;
+    }
 }
 
 /*

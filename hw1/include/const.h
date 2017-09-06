@@ -18,6 +18,8 @@ extern char fm_key[27];
 
 extern const char *key;
 
+#include <stdbool.h>
+
 /**
  * @brief Validates command line arguments passed to the program.
  * @details This function will validate all the arguments passed to the program
@@ -33,6 +35,8 @@ extern const char *key;
  * @return Refer to homework document for the return value of this function.
  */
 unsigned short validargs(int argc, char **argv);
+
+bool isModeZero(int argc, char** argv);
 
 #define USAGE(program_name, retcode) do{                                                        \
 fprintf(stderr, "USAGE: %s %s\n", program_name,                                                         \
