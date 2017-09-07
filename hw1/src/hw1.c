@@ -38,6 +38,16 @@ unsigned short validargs(int argc, char **argv) {
     return mode;
 }
 
+/**
+* The mode is 0 if there is any form of failure. This includes, but is not limited to:
+*
+* Invalid number of arguments (too few or too many)
+* Invalid ordering of arguments
+* Incorrect arguments for the specified cipher (e.g. -r or -c being passed in with -f)
+* Invalid key (if one is specified). A key is invalid if it contains characters not in the alphabet or has repeated characters. Note: The ciphers use different alphabets.
+* The number of rows or columns is invalid (i.e. more than 16 or less than 9)
+* (rows * columns) < length of polybius_alphabet for the Polybius cipher
+*/
 bool isModeZero(int argc, char** argv){
 
     if (argc > 7 || argc < 2){
