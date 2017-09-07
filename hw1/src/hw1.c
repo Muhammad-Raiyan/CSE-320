@@ -44,30 +44,29 @@ bool isModeZero(int argc, char** argv){
         return true;
     }
 
-    char **iterator = argv + 1, indCount = 1;
-    if( *(*(argv++)+1)  == 'h') {
-        printf("%s\n", "Increment");
-        iterator++;
-    }
+    int pos_count = 0;
 
+    for (char **pt_a = argv + 1; pt_a != argv+argc; pt_a++) {
+        for(char *pt_inr = *pt_a + 1; *pt_inr != '\0' ; pt_inr++) {
 
-    for(; iterator != argv + argc; iterator++){
-        for(char *charItr = *iterator; *charItr != '\0'; charItr++){
-            printf("%c ", *charItr);
-            if(*charItr == '-') continue;
-            switch(indCount){
-                case 1:
-                    if(*charItr != 'p' && *charItr != 'f') return true;
+            if(*pt_inr == 'h') {
+                //printf("Found H\n");
+                continue;
+            }
+            switch(pos_count){
+                case 0:
                     printf("%s\n", "CASE 1");
+                    if(*pt_inr != 'p' && *pt_inr != 'f') return true;
                     break;
-                case 2:
-                    if(*charItr != 'e' && *charItr != 'd') return true;
-                    printf("%s\n", "CAse 2");
+                case 1:
+                    if(*pt_inr != 'e' && *pt_inr != 'd') return true;
+                    printf("%s\n", "Case 2");
                     break;
             }
+            pos_count++;
+            printf("%c\n", *pt_inr);
         }
     }
-
     return false;
 }
 
