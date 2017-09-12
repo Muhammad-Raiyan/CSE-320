@@ -12,9 +12,13 @@
 #error "Do not #include <ctype.h>. You will get a ZERO."
 #endif
 
+bool isModeZero(int argc, char** argv);
+bool isValidKey(char *cand);
+
 //GLOBAL
 bool b_fractionated = false;
 bool b_decrypt = false;
+int row = 10, col = 10;
 
 /**
  * @brief Validates command line arguments passed to the program.
@@ -42,6 +46,15 @@ unsigned short validargs(int argc, char **argv) {
         return 0;
     }
 
+    if(b_fractionated) mode |= 1 << 14;
+    if(b_decrypt) mode |= 1 << 13;
+    if(row < 9 || row > 15 || col < 9 || col > 15) return 0;
+    if(row * col < myStrLen(polybius_alphabet)) return 0;
+    mode |= row << 4;
+    mode |= col;
+
+    printBits(mode);
+    //printf("%04x\n", mode);
     return mode;
 }
 
@@ -83,10 +96,33 @@ bool isModeZero(int argc, char** argv){
                     break;
             }
             pos_count++;
+            if(pos_count > 1){
+                if(*pt_inr == 'r'){
+                    row =  myToInt( *(pt_a+1) );
+                }
+
+                if(*pt_inr == 'c'){
+                    col = myToInt( *(pt_a+1) );
+                }
+
+                if(*pt_inr == 'k'){
+                    if(isValidKey( *( pt_a+1) )) key = *( pt_a+1);
+                }
+            }
             //printf("%c\n", *pt_inr);
         }
     }
     return false;
 }
 
-
+/*
+* Checks if key is valid -
+* *For the Polybius cipher, the key must have a non-repeating subset of the characters in the
+*  polybius_alphabet variable defined in const.c.
+*
+* *For the Fractionated Morse Cipher, the key must have a non-repeating subset of the
+*  characters in the fm_alphabet variable defined in const.c.
+*/
+bool isValidKey(char *cand){
+    return true;
+}
