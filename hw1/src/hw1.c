@@ -13,7 +13,7 @@
 #endif
 
 bool isModeZero(int argc, char** argv);
-bool isValidKey(char *cand);
+bool isValidKey(char *cand, bool isFractionated);
 
 //GLOBAL
 bool b_fractionated = false;
@@ -106,7 +106,7 @@ bool isModeZero(int argc, char** argv){
                 }
 
                 if(*pt_inr == 'k'){
-                    if(isValidKey( *( pt_a+1) )) key = *( pt_a+1);
+                    if(isValidKey( *( pt_a+1), b_fractionated )) key = *( pt_a+1);
                 }
             }
             //printf("%c\n", *pt_inr);
@@ -123,6 +123,6 @@ bool isModeZero(int argc, char** argv){
 * *For the Fractionated Morse Cipher, the key must have a non-repeating subset of the
 *  characters in the fm_alphabet variable defined in const.c.
 */
-bool isValidKey(char *cand){
+bool isValidKey(char *cand, bool isFractionated){
     return true;
 }
