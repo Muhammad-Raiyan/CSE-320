@@ -12,6 +12,10 @@
 #error "Do not #include <ctype.h>. You will get a ZERO."
 #endif
 
+//GLOBAL
+bool b_fractionated = false;
+bool b_decrypt = false;
+
 /**
  * @brief Validates command line arguments passed to the program.
  * @details This function will validate all the arguments passed to the program
@@ -29,7 +33,10 @@
 
 unsigned short validargs(int argc, char **argv) {
     unsigned short mode = 0x8000;
-    printf("argc value: %d\n", argc);
+    //printf("argc value: %d\n", argc);
+    if(*(*(argv+1)+1) == 'h'){
+        return mode;
+    }
 
     if(isModeZero(argc, argv) == true){
         return 0;
@@ -50,7 +57,7 @@ unsigned short validargs(int argc, char **argv) {
 */
 bool isModeZero(int argc, char** argv){
 
-    if (argc > 7 || argc < 2){
+    if (argc > 9 || argc < 3){
         return true;
     }
 
@@ -65,16 +72,18 @@ bool isModeZero(int argc, char** argv){
             }
             switch(pos_count){
                 case 0:
-                    printf("%s\n", "CASE 1");
+                    //printf("%s\n", "CASE 1");
                     if(*pt_inr != 'p' && *pt_inr != 'f') return true;
+                    if(*pt_inr == 'f') b_fractionated = true;
                     break;
                 case 1:
                     if(*pt_inr != 'e' && *pt_inr != 'd') return true;
-                    printf("%s\n", "Case 2");
+                    if(*pt_inr == 'd') b_decrypt = true;
+                    //printf("%s\n", "Case 2");
                     break;
             }
             pos_count++;
-            printf("%c\n", *pt_inr);
+            //printf("%c\n", *pt_inr);
         }
     }
     return false;
