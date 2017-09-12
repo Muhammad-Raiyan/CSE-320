@@ -28,7 +28,7 @@ int main(int argc, char **argv)
         return EXIT_SUCCESS;
     }
 
-    else {
+    else if(mode == 0){
         printf("%s\n", "FAIL");
         USAGE(argv[0], EXIT_FAILURE);
         return EXIT_FAILURE;

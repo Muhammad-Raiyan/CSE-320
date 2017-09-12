@@ -45,16 +45,18 @@ unsigned short validargs(int argc, char **argv) {
     if(isModeZero(argc, argv) == true){
         return 0;
     }
-
+    mode = 0;
     if(b_fractionated) mode |= 1 << 14;
     if(b_decrypt) mode |= 1 << 13;
     if(row < 9 || row > 15 || col < 9 || col > 15) return 0;
     if(row * col < myStrLen(polybius_alphabet)) return 0;
-    mode |= row << 4;
-    mode |= col;
 
+    if(!b_fractionated){
+        mode |= row << 4;
+        mode |= col;
+    }
     printBits(mode);
-    //printf("%04x\n", mode);
+    printf("%04x\n", mode);
     return mode;
 }
 
