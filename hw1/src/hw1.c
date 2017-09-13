@@ -12,9 +12,6 @@
 #error "Do not #include <ctype.h>. You will get a ZERO."
 #endif
 
-bool isModeZero(int argc, char** argv);
-bool isValidKey(char *cand, bool isFractionated);
-
 //GLOBAL
 bool b_fractionated = false;
 bool b_decrypt = false;
@@ -37,6 +34,7 @@ int row = 10, col = 10;
 
 unsigned short validargs(int argc, char **argv) {
     unsigned short mode = 0x8000;
+    key = NULL;
     //printf("argc value: %d\n", argc);
     if(*(*(argv+1)+1) == 'h'){
         return mode;
@@ -54,9 +52,10 @@ unsigned short validargs(int argc, char **argv) {
     if(!b_fractionated){
         mode |= row << 4;
         mode |= col;
+        createPolybiusTable(row, col);
     }
-    printBits(mode);
-    printf("%04x\n", mode);
+    //printBits(mode);
+    //printf("%04x\n", mode);
     return mode;
 }
 
@@ -108,7 +107,8 @@ bool isModeZero(int argc, char** argv){
                 }
 
                 if(*pt_inr == 'k'){
-                    if(isValidKey( *( pt_a+1), b_fractionated )) key = *( pt_a+1);
+                    if(isValidKey( *( pt_a+1), b_fractionated ))
+                        key = *( pt_a+1);
                 }
             }
             //printf("%c\n", *pt_inr);

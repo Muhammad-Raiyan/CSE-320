@@ -18,8 +18,6 @@ extern char fm_key[27];
 
 extern const char *key;
 
-#include <stdbool.h>
-
 /**
  * @brief Validates command line arguments passed to the program.
  * @details This function will validate all the arguments passed to the program

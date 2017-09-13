@@ -1,4 +1,4 @@
-#include "const.h"
+#include "util.h"
 
 int myToInt(char *str){
 
@@ -29,4 +29,29 @@ int myStrLen(char *str){
         len++;
     }
     return len;
+}
+
+void display(char *k,int r,int c){
+    int i,j;
+    char *z;
+
+    for(i=0;i<r;i++){
+        z=k+i*c;
+        printf("Row %d: ", i);
+        for(j=0;j<c;j++){
+            char *cand =(z+j);
+            printf("%c ", *cand);
+            //if(*cand == '\0') printf("NULL ");
+        }
+        printf("\n");
+    }
+}
+
+char* myStrContains(char *str, char c){
+    while (*str != (char) c) {
+        if (!*str++) {
+            return NULL;
+        }
+    }
+    return (char *)str;
 }
