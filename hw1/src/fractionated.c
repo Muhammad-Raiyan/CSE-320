@@ -18,20 +18,6 @@ void makeFractionatedKey(const char* key){
             continue;
         }
     }
-    /*for(int j=0; *(fm_alphabet+j)!= '\0'; j++){
-        char cand = *(fm_alphabet+j);
-        if(myStrContains(fm_key, cand)!=NULL){
-            continue;
-        } else {
-            if((fm_key+last_insert)==NULL){
-                *(fm_key+last_insert) = *(fm_alphabet+j);
-            }
-            else {
-                j --;
-            }
-            last_insert++;
-        }
-    }*/
     printArr(fm_key, 27);
 }
 
