@@ -5,8 +5,6 @@
 #ifndef CONST_H
 #define CONST_H
 
-#include <stdio.h>
-
 extern char *polybius_alphabet;
 extern char polybius_table[257];
 
