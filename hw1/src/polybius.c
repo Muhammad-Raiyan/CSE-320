@@ -15,9 +15,9 @@ void createPolybiusTable(int l_row, int l_col){
         //printf("After: \n");
         //display(polybius_table, p_row, p_col);
     }
-    printf("After 2: \n");
+    //printf("After 2: \n");
     populateTable(polybius_alphabet);
-    display(polybius_table, p_row, p_col);
+    //display(polybius_table, p_row, p_col);
 }
 
 bool encryptP(char ch){
@@ -31,8 +31,10 @@ bool encryptP(char ch){
     return true;
 }
 
-char decryptP(int pos){
-    return (char) pos;
+bool decryptP(int row, int col){
+    int pos = row * p_col + col;
+    printf("%c", *(polybius_table+pos));
+    return true;
 }
 
 void populateTable(const char* words){

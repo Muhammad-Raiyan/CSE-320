@@ -4,7 +4,7 @@
 
 void createPolybiusTable(int row, int col);
 bool encryptP(char ch);
-char decryptP(int pos);
+bool decryptP(int row, int col);
 void populateTable(const char* words);
 int findRow(char ch);
 int findCol(char ch);

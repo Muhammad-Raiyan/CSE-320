@@ -13,6 +13,7 @@
 #ifdef _CTYPE_H
 #error "Do not #include <ctype.h>. You will get a ZERO."
 #endif
+#include "util.h"
 
 int main(int argc, char **argv)
 {
@@ -36,8 +37,14 @@ int main(int argc, char **argv)
         char c;
         while( (c = getchar()) != EOF){
             if(c != '\n' && c != '\t' && c != ' '){
-                if(encryptP(c)!= true){
-                    return EXIT_FAILURE;
+                if(((mode >> 13) & 1) == 0) {  // CHECK IF BIT 13 IS 1
+                    if( encryptP(c)!= true)
+                        return EXIT_FAILURE;
+                }
+                else{
+                    char c2 = getchar();
+                    if( decryptP(charToInt(c), charToInt(c2))!= true)
+                        return EXIT_FAILURE;
                 }
             }
             else {

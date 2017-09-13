@@ -99,11 +99,11 @@ bool isModeZero(int argc, char** argv){
             pos_count++;
             if(pos_count > 1){
                 if(*pt_inr == 'r'){
-                    row =  myToInt( *(pt_a+1) );
+                    row =  strToInt( *(pt_a+1) );
                 }
 
                 if(*pt_inr == 'c'){
-                    col = myToInt( *(pt_a+1) );
+                    col = strToInt( *(pt_a+1) );
                 }
 
                 if(*pt_inr == 'k'){

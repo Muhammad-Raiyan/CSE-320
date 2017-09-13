@@ -1,6 +1,6 @@
 #include "util.h"
 
-int myToInt(char *str){
+int strToInt(char *str){
 
     int result = 0;
 
@@ -9,6 +9,12 @@ int myToInt(char *str){
     }
 
     return result;
+}
+
+int charToInt(char cand){
+    if(cand >= '0' && cand <= '9') return cand - '0';
+    else if(cand >= 'A' && cand <='F') return cand-'A'+10;
+    else return cand-'a'+10;
 }
 
 void printBits(unsigned short mode){
