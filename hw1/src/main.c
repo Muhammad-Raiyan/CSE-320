@@ -2,7 +2,6 @@
 
 #include "hw1.h"
 #include "debug.h"
-#include "polybius.h"
 #ifdef _STRING_H
 #error "Do not #include <string.h>. You will get a ZERO."
 #endif
@@ -36,9 +35,15 @@ int main(int argc, char **argv)
     else {
         char c;
         while( (c = getchar()) != EOF){
-            //if(c != '\n') printf("%d ", encryptP(c));
+            if(c != '\n' && c != '\t' && c != ' '){
+                if(encryptP(c)!= true){
+                    return EXIT_FAILURE;
+                }
+            }
+            else {
+                printf("%c", c);
+            }
         }
-        printf("\n");
     }
 }
 

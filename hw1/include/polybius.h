@@ -3,6 +3,8 @@
 #include "util.h"
 
 void createPolybiusTable(int row, int col);
-int encryptP(char ch);
+bool encryptP(char ch);
 char decryptP(int pos);
-void populateTable(const char* words, int orw, int col);
+void populateTable(const char* words);
+int findRow(char ch);
+int findCol(char ch);
