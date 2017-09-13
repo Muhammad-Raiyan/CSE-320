@@ -55,13 +55,16 @@ int main(int argc, char **argv)
                 }
             }
             else {
-                if(((mode >> 13) & 1) == 0) {  // CHECK IF BIT 13 IS 0(-e) or 1(-d)
-                    if(encryptF(c) == false){
-                        return EXIT_FAILURE;
-                    }
-                }
-                else{
+                if(c != '\n' && c != '\t'){
 
+                    if(((mode >> 13) & 1) == 0) {  // CHECK IF BIT 13 IS 0(-e) or 1(-d)
+                        if(encryptF(c) == false){
+                            return EXIT_FAILURE;
+                        }
+                    }
+                    else{
+
+                    }
                 }
             }
         }
