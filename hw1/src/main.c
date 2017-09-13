@@ -36,19 +36,33 @@ int main(int argc, char **argv)
     else {
         char c;
         while( (c = getchar()) != EOF){
-            if(c != '\n' && c != '\t' && c != ' '){
-                if(((mode >> 13) & 1) == 0) {  // CHECK IF BIT 13 IS 1
-                    if( encryptP(c)!= true)
-                        return EXIT_FAILURE;
+
+            if(((mode >> 14) && 1) == 0){ // CHECK IF BIT 14 IS 0(-p) or 1(-f)
+
+                if(c != '\n' && c != '\t' && c != ' '){
+                    if(((mode >> 13) && 1) == 0) {  // CHECK IF BIT 13 IS 0(-e) or 1(-d)
+                        if( encryptP(c)!= true)
+                            return EXIT_FAILURE;
+                    }
+                    else{
+                        char c2 = getchar();
+                        if( decryptP(charToInt(c), charToInt(c2))!= true)
+                            return EXIT_FAILURE;
+                    }
                 }
-                else{
-                    char c2 = getchar();
-                    if( decryptP(charToInt(c), charToInt(c2))!= true)
-                        return EXIT_FAILURE;
+                else {
+                    printf("%c", c);
                 }
             }
             else {
-                printf("%c", c);
+                if(((mode >> 13) & 1) == 0) {  // CHECK IF BIT 13 IS 0(-e) or 1(-d)
+                    if(encryptF(c) == false){
+                        return EXIT_FAILURE;
+                    }
+                }
+                else{
+
+                }
             }
         }
     }
