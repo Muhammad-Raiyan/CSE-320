@@ -2,7 +2,7 @@
 #include <const.h>
 #include "util.h"
 
-void makeFractionatedKey(char* key);
+void makeFractionatedKey(const char* key);
 bool encryptF(char ch);
 bool decryptF(char ch);
 char* textToMorseCode(char ch);

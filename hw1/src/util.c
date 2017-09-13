@@ -27,7 +27,7 @@ void printBits(unsigned short mode){
     printf("\n");
 }
 
-int myStrLen(char *str){
+int myStrLen(const char *str){
 
     int len = 0;
     for (int i = 0; *(str + i) != '\0'; ++i)
@@ -60,4 +60,10 @@ char* myStrContains(char *str, char c){
         }
     }
     return (char *)str;
+}
+
+void printArr(char *k, int length){
+    for(int i = 0; i<length; i++){
+        printf("%c ", *(k+i));
+    }
 }

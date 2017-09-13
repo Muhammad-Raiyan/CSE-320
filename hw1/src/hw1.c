@@ -55,7 +55,8 @@ unsigned short validargs(int argc, char **argv) {
         createPolybiusTable(row, col);
     }
     else {
-        makeFractionatedKey((char*)key);
+        //printf("Call makeFractionatedKey\n");
+        makeFractionatedKey(key);
     }
     //printBits(mode);
     //printf("%04x\n", mode);

@@ -39,7 +39,7 @@ bool decryptP(int row, int col){
 
 void populateTable(const char* words){
     int count_insert = 0;
-    for(int i = 0; i < p_row*p_col && *(words + count_insert)!='\0' && count_insert < myStrLen((char*)words); i++){
+    for(int i = 0; i < p_row*p_col && *(words + count_insert)!='\0' && count_insert < myStrLen(words); i++){
         char candidate =*(words+count_insert);
         if(myStrContains(polybius_table, candidate) != NULL){
             count_insert++;
