@@ -62,6 +62,14 @@ bool encryptF(char ch){
 }
 
 bool decryptF(char ch){
+    int index = indexOf(fm_key, ch);
+    //printf("%d\n", index);
+    if(index < 0) return true;
+
+    for(int i = 0; i<myStrLen(*(fractionated_table+index)); i++){
+        *(polybius_table+i) = *(*(fractionated_table+index)+i);
+    }
+    printf("%s\n", polybius_table);
     return true;
 }
 

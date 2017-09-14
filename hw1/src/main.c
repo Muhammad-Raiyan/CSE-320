@@ -63,7 +63,9 @@ int main(int argc, char **argv)
                         }
                     }
                     else{
-
+                        if(decryptF(c) == false){
+                            return EXIT_FAILURE;
+                        }
                     }
                 }
             }

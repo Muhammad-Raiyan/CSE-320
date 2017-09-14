@@ -84,3 +84,10 @@ bool myStrCmp ( const char *str1, const char *str2 )
    }
    return true;
 }
+
+int indexOf(const char* str, char target){
+    for(int i=0; i < myStrLen(str); i++){
+        if(*(str+i) == target) return i;
+    }
+    return -1;
+}
