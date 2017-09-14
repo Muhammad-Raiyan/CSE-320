@@ -35,8 +35,11 @@ bool encryptF(char ch){
         alreadyHasWS = false;
         insertEndOfBuffer('x');
         //printf("%s\n", mybuffer);
+        if(myStrLen(mybuffer)!= 0){
+            cipher();
+        }
         clearArray(mybuffer);
-        printf("\n");
+        //printf("\n");
         return true;
     }
     if(ch == ' '){
@@ -50,26 +53,47 @@ bool encryptF(char ch){
     if(textToMorseCode(charIndOnMT)==false) return false;
     while(isBuffFull()){
         //printf("Buff is Full: %s\n", mybuffer);
-        long space = 0;
-        char* target = (char*) &space;
-        getTriplet(target);
-        //printf("REMOVED: %s\n", target);
-        printf("%c", cipherMorseCode(target));
-        removeFromFront();
+        cipher();
     }
 
     return encryptF(getchar());
 }
 
+void cipher(){
+    long space = 0;
+    char* target = (char*) &space;
+    //printf("%s\n", mybuffer);
+    getTriplet(target);
+    //printf("REMOVED: %s\n", target);
+    printf("%c", cipherMorseCode(target));
+    removeFromFront();
+}
+
 bool decryptF(char ch){
     int index = indexOf(fm_key, ch);
     //printf("%d\n", index);
-    if(index < 0) return true;
+    if(index < 0) {
+        return true;
+    }
 
     for(int i = 0; i<myStrLen(*(fractionated_table+index)); i++){
-        *(polybius_table+i) = *(*(fractionated_table+index)+i);
+        insertEndOfBuffer(*(*(fractionated_table+index)+i));
     }
-    printf("%s\n", polybius_table);
+    //printf("Org: %s\n", polybius_table);
+    if(*(polybius_table) == 'x'){
+        //if(*(polybius_table+1) != '\0'){
+            shiftArrLeft(polybius_table, 1);
+            printf(" ");
+        //}
+    }
+    char* tail = findXinBuf();
+    if(tail!=NULL){
+        //printf("Tail: %c ", *tail);
+        morseToText((char *)polybius_table, tail);
+    }
+    else{
+        return decryptF(getchar());
+    }
     return true;
 }
 
@@ -96,6 +120,24 @@ char cipherMorseCode(const char *code){
     return '\0';
 }
 
+void morseToText(char* head, char* tail){
+    long space = 0;
+    char *cand = (char*)&space;
+    int ins_pos = 0;
+
+    while(head != tail){
+        *(cand+ins_pos) = *head;
+        ins_pos++;
+        head++;
+    }
+    //printf("CAND: %s incr: %d ", cand, ins_pos);
+
+    for(int i = 0; i<'z'-'!'; i++){
+        if(myStrCmp(cand, *(morse_table+i))) printf("%c", *(fm_alphabet+i-'!'+1));
+    }
+    shiftArrLeft(polybius_table, ins_pos+1);
+}
+
 void insertEndOfBuffer(char ch){
     int len = myStrLen(mybuffer);
     *(mybuffer+len) = ch;
@@ -119,6 +161,18 @@ void getTriplet(char* temp_buff){
 bool isBuffFull(){
     if(myStrLen(mybuffer) >=3) return true;
     else return false;
+}
+
+char *findXinBuf(){
+    int count = 0;
+    for(char* p_look = polybius_table; *(p_look)!='\0' ;p_look++){
+        if(*p_look == 'x') {
+            //printf("Tail Pos: %d\n", count);
+            return p_look;
+        }
+        count++;
+    }
+    return NULL;
 }
 
 

@@ -12,3 +12,4 @@ char* myStrContains(char *str, char c);
 void clearArray(char *str);
 bool myStrCmp(const char* str1, const char* str2);
 int indexOf(const char* str, char target);
+void shiftArrLeft(char *ch, int offset);
