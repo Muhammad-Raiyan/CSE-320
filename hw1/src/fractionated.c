@@ -38,7 +38,7 @@ bool decryptF(char ch){
 
 void textToMorseCode(int indexOnMorseTalbe){
     printf("%d\n", myStrLen(mybuffer_head));
-    mybuffer_head = ((char *)morse_table + indexOnMorseTalbe);
+    mybuffer_head = ((char *)gimorse_table + indexOnMorseTalbe);
     mybuffer_tail++;
     printf("%d\n", myStrLen(mybuffer_head));
     //return fm_key;
