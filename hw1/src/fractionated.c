@@ -31,17 +31,20 @@ bool encryptF(char ch){
 
     if(alreadyHasWS== true && ch == ' ')
         return encryptF(getchar());
+
     if(ch == '\n' || ch == '\r') {
         alreadyHasWS = false;
         insertEndOfBuffer('x');
-        //printf("%s\n", mybuffer);
-        if(myStrLen(mybuffer)!= 0){
+
+        if(myStrLen(mybuffer)== 3){
             cipher();
         }
+        //printf("%s", mybuffer);
         clearArray(mybuffer);
-        //printf("\n");
+        printf("\n");
         return true;
     }
+
     if(ch == ' '){
         insertEndOfBuffer('x');
         alreadyHasWS = true;
@@ -59,20 +62,21 @@ bool encryptF(char ch){
     return encryptF(getchar());
 }
 
-void cipher(){
-    long space = 0;
-    char* target = (char*) &space;
-    //printf("%s\n", mybuffer);
-    getTriplet(target);
-    //printf("REMOVED: %s\n", target);
-    printf("%c", cipherMorseCode(target));
-    removeFromFront();
-}
-
 bool decryptF(char ch){
     int index = indexOf(fm_key, ch);
-    //printf("%d\n", index);
     if(index < 0) {
+        //printf("%s", polybius_table);
+        if(myStrLen(polybius_table)>0){
+            if(*(polybius_table) == 'x') {
+                printf("\n");
+                return true;
+            }
+            for(int i = 0; i<myStrLen(polybius_table); i++){
+                if(*(polybius_table+i) == 'x') *(polybius_table+i) = '\0';
+            }
+            morseToText(polybius_table, polybius_table+myStrLen(polybius_table));
+        }
+        printf("\n");
         return true;
     }
 
@@ -81,20 +85,29 @@ bool decryptF(char ch){
     }
     //printf("Org: %s\n", polybius_table);
     if(*(polybius_table) == 'x'){
-        //if(*(polybius_table+1) != '\0'){
-            shiftArrLeft(polybius_table, 1);
-            printf(" ");
-        //}
+        shiftArrLeft(polybius_table, 1);
+        printf(" ");
     }
+
     char* tail = findXinBuf();
     if(tail!=NULL){
         //printf("Tail: %c ", *tail);
-        morseToText((char *)polybius_table, tail);
+        morseToText((char *) polybius_table, tail);
     }
     else{
         return decryptF(getchar());
     }
     return true;
+}
+
+void cipher(){
+    long space = 0;
+    char* target = (char*) &space;
+    //printf("%s", mybuffer);
+    getTriplet(target);
+    //printf("REMOVED: %s\n", target);
+    printf("%c", cipherMorseCode(target));
+    removeFromFront();
 }
 
 bool textToMorseCode(int indexOnMorseTable){
@@ -121,6 +134,7 @@ char cipherMorseCode(const char *code){
 }
 
 void morseToText(char* head, char* tail){
+    //printf("%s", head);
     long space = 0;
     char *cand = (char*)&space;
     int ins_pos = 0;
@@ -133,7 +147,7 @@ void morseToText(char* head, char* tail){
     //printf("CAND: %s incr: %d ", cand, ins_pos);
 
     for(int i = 0; i<'z'-'!'; i++){
-        if(myStrCmp(cand, *(morse_table+i))) printf("%c", *(fm_alphabet+i-'!'+1));
+        if(myStrCmp(cand, *(morse_table+i))) printf("%c", i+'!');
     }
     shiftArrLeft(polybius_table, ins_pos+1);
 }

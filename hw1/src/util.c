@@ -94,7 +94,7 @@ int indexOf(const char* str, char target){
 
 void shiftArrLeft(char *ch, int shift){
     int temp = myStrLen(ch);
-    //printf("Before Shift: %s ", ch);
+    //printf(" Before Shift: %s ", ch);
     for(int i = 0; i<temp; i++){
         *(ch+i) = *(ch+i+shift);
         *(ch+i+shift) = '\0';
