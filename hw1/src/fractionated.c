@@ -28,6 +28,7 @@ void makeFractionatedKey(const char* key){
 }
 
 bool encryptF(char ch){
+
     if(alreadyHasWS== true && ch == ' ')
         return encryptF(getchar());
     if(ch == '\n' || ch == '\r') {
@@ -46,7 +47,7 @@ bool encryptF(char ch){
     int charIndOnMT = ch - '!';
     alreadyHasWS = false;
     //printf("Index: %d\n", charIndOnMT);
-    textToMorseCode(charIndOnMT);
+    if(textToMorseCode(charIndOnMT)==false) return false;
     while(isBuffFull()){
         //printf("Buff is Full: %s\n", mybuffer);
         long space = 0;
@@ -64,14 +65,16 @@ bool decryptF(char ch){
     return true;
 }
 
-void textToMorseCode(int indexOnMorseTable){
+bool textToMorseCode(int indexOnMorseTable){
 
     char *tempStr = (char*)*(morse_table + indexOnMorseTable);
-
+    if(myStrCmp(tempStr, ""))
+        return false;
     for(int i = 0; *(tempStr+i)!='\0'; i++){
         insertEndOfBuffer(*(tempStr+i));
     }
     insertEndOfBuffer('x');
+    return true;
 }
 
 char cipherMorseCode(const char *code){

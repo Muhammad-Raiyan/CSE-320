@@ -6,7 +6,7 @@
 void makeFractionatedKey(const char* key);
 bool encryptF(char ch);
 bool decryptF(char ch);
-void textToMorseCode(int indexOnMorseTalbe);
+bool textToMorseCode(int indexOnMorseTalbe);
 char cipherMorseCode(const char *code);
 void insertEndOfBuffer(char ch);
 bool isBuffFull();
