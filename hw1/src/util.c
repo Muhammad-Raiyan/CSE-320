@@ -67,3 +67,20 @@ void printArr(char *k, int length){
         printf("%c ", *(k+i));
     }
 }
+
+void clearArray(char *str){
+    int len = myStrLen(str);
+    for(int i = 0; i < len; i++){
+        *(str+i) = '\0';
+    }
+}
+
+bool myStrCmp ( const char *str1, const char *str2 )
+{
+   while ( *str1 != '\0' || *str2 != '\0') {
+       if ( *str1 != *str2 ) return false;
+       ++str1;
+       ++str2;
+   }
+   return true;
+}

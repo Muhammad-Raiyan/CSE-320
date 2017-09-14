@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "const.h"
+#include <const.h>
 #include "util.h"
 
 void createPolybiusTable(int row, int col);

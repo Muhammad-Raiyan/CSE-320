@@ -1,7 +1,7 @@
 #ifndef HW_H
 #define HW_H
 
-#include "const.h"
+#include <const.h>
 
 #endif
 #include <stdbool.h>
