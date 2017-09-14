@@ -5,5 +5,5 @@
 void makeFractionatedKey(const char* key);
 bool encryptF(char ch);
 bool decryptF(char ch);
-char* textToMorseCode(char ch);
+void textToMorseCode(int indexOnMorseTalbe);
 char* cipherMorseCode(char * ch);

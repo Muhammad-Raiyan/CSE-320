@@ -1,4 +1,7 @@
 #include "fractionated.h"
+long space = 0;
+char *mybuffer_head =(char*) &space;
+char *mybuffer_tail =(char*) &space;
 
 void makeFractionatedKey(const char* key){
     //printf("%d\n", myStrLen(key));
@@ -18,10 +21,14 @@ void makeFractionatedKey(const char* key){
             continue;
         }
     }
-    printArr(fm_key, 27);
+    //printArr(fm_key, 27);
 }
 
 bool encryptF(char ch){
+    printf("In encryptF\n");
+    int charIndOnMT = ch - '!';
+    printf("Index: %d\n", charIndOnMT);
+    textToMorseCode(charIndOnMT);
     return true;
 }
 
@@ -29,8 +36,12 @@ bool decryptF(char ch){
     return true;
 }
 
-char* textToMorseCode(char ch){
-    return fm_key;
+void textToMorseCode(int indexOnMorseTalbe){
+    printf("%d\n", myStrLen(mybuffer_head));
+    mybuffer_head = ((char *)morse_table + indexOnMorseTalbe);
+    mybuffer_tail++;
+    printf("%d\n", myStrLen(mybuffer_head));
+    //return fm_key;
 }
 
 char* cipherMorseCode(char * ch){
