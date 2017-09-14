@@ -24,7 +24,6 @@ int main(int argc, char **argv)
     debug("Mode: 0x%X", mode);
 
     if(mode == 0){
-        printf("%s\n", "FAIL");
         USAGE(argv[0], EXIT_FAILURE);
         return EXIT_FAILURE;
     }

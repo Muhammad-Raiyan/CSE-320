@@ -113,6 +113,9 @@ bool isModeZero(int argc, char** argv){
                 if(*pt_inr == 'k'){
                     if(isValidKey( *( pt_a+1), b_fractionated ))
                         key = *( pt_a+1);
+                    else {
+                        return true;
+                    }
                 }
             }
             //printf("%c\n", *pt_inr);
@@ -130,5 +133,20 @@ bool isModeZero(int argc, char** argv){
 *  characters in the fm_alphabet variable defined in const.c.
 */
 bool isValidKey(char *cand, bool isFractionated){
+    const char* table = isFractionated ? fm_alphabet : polybius_alphabet;
+    //printf("%s\n", table);
+
+    for(char* pt_ch = cand; pt_ch != '\0'; pt_ch++){
+        char* pt_checkInside = myStrContains((char *)table, *pt_ch);
+        if(pt_checkInside!= NULL) {
+            char target = *pt_checkInside;
+            if(myStrContains(pt_checkInside+1, target)!=NULL){
+                return false;
+            }
+
+        } else {
+            return false;
+        }
+    }
     return true;
 }
