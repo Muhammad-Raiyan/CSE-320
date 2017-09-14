@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 char *mybuffer = polybius_table;
+bool alreadyHasWS = false;
 
 void makeFractionatedKey(const char* key){
     //printf("%d\n", myStrLen(key));
@@ -27,8 +28,10 @@ void makeFractionatedKey(const char* key){
 }
 
 bool encryptF(char ch){
-    //printf("In encryptF\n");
+    if(alreadyHasWS== true && ch == ' ')
+        return encryptF(getchar());
     if(ch == '\n' || ch == '\r') {
+        alreadyHasWS = false;
         insertEndOfBuffer('x');
         //printf("%s\n", mybuffer);
         clearArray(mybuffer);
@@ -37,9 +40,11 @@ bool encryptF(char ch){
     }
     if(ch == ' '){
         insertEndOfBuffer('x');
-        return true;
+        alreadyHasWS = true;
+        return encryptF(getchar());
     }
     int charIndOnMT = ch - '!';
+    alreadyHasWS = false;
     //printf("Index: %d\n", charIndOnMT);
     textToMorseCode(charIndOnMT);
     while(isBuffFull()){
