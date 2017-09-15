@@ -48,8 +48,7 @@ int main(int argc, char **argv)
                         if( decryptP(charToInt(c), charToInt(c2))!= true)
                             return EXIT_FAILURE;
                     }
-                }
-                else {
+                } else {
                     printf("%c", c);
                 }
             }

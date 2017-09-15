@@ -138,12 +138,15 @@ bool isValidKey(char *cand, bool isFractionated){
 
     for(char* pt_ch = cand; *pt_ch != '\0'; pt_ch++){
         char* pt_checkInside = myStrContains((char *)table, *pt_ch);
+        //printf("%s\n", pt_checkInside);
+
         if(pt_checkInside!= NULL) {
             char target = *pt_checkInside;
-            if(myStrContains(++pt_checkInside, target)!=NULL){
+            //printf("%c\n", target);
+            char *p_i =myStrContains((char*) (++pt_checkInside), target);
+            if(p_i != NULL){
                 return false;
             }
-
         } else {
             return false;
         }

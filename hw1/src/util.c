@@ -64,7 +64,7 @@ char* myStrContains(char *str, char c){
 
 void printArr(char *k, int length){
     for(int i = 0; i<length; i++){
-        printf("%c ", *(k+i));
+        printf("%c", *(k+i));
     }
 }
 
