@@ -32,7 +32,7 @@ bool encryptF(char ch){
     if(alreadyHasWS== true && ch == ' ')
         return encryptF(getchar());
 
-    if(ch == '\n' || ch == '\r') {
+    if(ch == '\n' || ch == '\r' || ch == EOF) {
         alreadyHasWS = false;
         insertEndOfBuffer('x');
 

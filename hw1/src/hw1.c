@@ -36,10 +36,10 @@ unsigned short validargs(int argc, char **argv) {
     unsigned short mode = 0x8000;
     key = NULL;
     //printf("argc value: %d\n", argc);
+    if(argc == 1) return 0;
     if(*(*(argv+1)+1) == 'h'){
         return mode;
     }
-
     if(isModeZero(argc, argv) == true){
         return 0;
     }
