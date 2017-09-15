@@ -49,9 +49,6 @@ int main(int argc, char **argv)
                             return EXIT_FAILURE;
                     }
                 }
-                else {
-                    printf("%c", c);
-                }
             }
             else {
                 if(c != '\t'){

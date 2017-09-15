@@ -64,7 +64,7 @@ char* myStrContains(char *str, char c){
 
 void printArr(char *k, int length){
     for(int i = 0; i<length; i++){
-        printf("%c ", *(k+i));
+        printf("%c", *(k+i));
     }
 }
 
@@ -94,12 +94,12 @@ int indexOf(const char* str, char target){
 
 void shiftArrLeft(char *ch, int shift){
     int temp = myStrLen(ch);
-    //printf(" Before Shift: %s ", ch);
+    printf(" Before Shift: %s ", ch);
     for(int i = 0; i<temp; i++){
         *(ch+i) = *(ch+i+shift);
         *(ch+i+shift) = '\0';
     }
-    //printf("After Shift: %s\n", ch);
+    printf("After Shift: %s\n", ch);
 }
 
 
