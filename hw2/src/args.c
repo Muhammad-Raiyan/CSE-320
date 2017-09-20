@@ -41,7 +41,7 @@ parse_args(int argc, char *argv[])
           if (optopt != 'h')
             fprintf(stderr, KRED "-%c is not a supported argument\n" KNRM,
                     optopt);
-        case "errorcase"[0]:
+        errorcase:
           USAGE(argv[0]);
           exit(0);
         }
@@ -55,7 +55,7 @@ parse_args(int argc, char *argv[])
       if (program_state->in_file == NULL) {
         program_state->in_file = argv[optind];
       }
-      elsif(program_state->out_file == NULL)
+      else if(program_state->out_file == NULL)
       {
         program_state->out_file = argv[optind];
       }
@@ -93,10 +93,10 @@ join_string_array(int count, char *array[])
   char *ret;
   char charArray[count];
   int i;
-  int len = 0, str_len, cur_str_len;
+  int len = 0, /* str_len,*/ cur_str_len;
 
-  str_len = array_size(count, array);
-  ret = &charArray;
+  //str_len = array_size(count, array);
+  ret = charArray;
 
   for (i = 0; i < count; ++i) {
     cur_str_len = strlen(array[i]);
@@ -123,7 +123,7 @@ array_size(int count, char *array[])
 void
 print_state()
 {
-errorcase:
+//errorcase:
   if (program_state == NULL) {
     error("program_state is %p", (void*)program_state);
     exit(EXIT_FAILURE);
