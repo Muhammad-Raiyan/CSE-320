@@ -42,6 +42,7 @@ from_utf8_to_utf16be(int infile, int outfile)
   int bom;
   utf8_glyph_t utf8_buf;
   ssize_t bytes_read;
+
   size_t remaining_bytes;
   size_t size_of_glyph;
   code_point_t code_point;
@@ -60,6 +61,7 @@ from_utf8_to_utf16be(int infile, int outfile)
       }
     }
     code_point = get_utf8_decoding_function(remaining_bytes + 1)(utf8_buf);
+    debug("code_point: %x", code_point);
     utf16_buf = code_point_to_utf16be_glyph(code_point, &size_of_glyph);
     write_to_bigendian(outfile, &utf16_buf, size_of_glyph);
   }

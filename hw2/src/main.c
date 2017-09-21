@@ -12,23 +12,28 @@ main(int argc, char *argv[])
   check_bom();
   debug("Success: check_bom()");
   print_state();
-  debug("Success: print_state()");
   in_flags = O_RDONLY;
   out_flags = O_WRONLY | O_CREAT;
   infile = Open(program_state->in_file, in_flags);
   outfile = Open(program_state->out_file, out_flags);
-  debug("Successfully Opened in and outfiles");
+  info("open success. Infile: %d Outfile %d in_flags %d out_flags %d", infile, outfile, in_flags, out_flags);
   lseek(SEEK_SET, program_state->bom_length, infile); /* Discard BOM */
   debug("Success: lseek()");
-  get_encoding_function()(infile, outfile);
+  convertion_func_t trans = get_encoding_function();//(infile, outfile);
+  trans(infile, outfile);
+  //convertion_func_t = get_encoding_function();
+
   debug("Success: get_encoding_function()");
   if(program_state != NULL) {
     close(infile);
   }
   //I think this is how this works
-  free((void*)(intptr_t)outfile);
-  free((void*)(intptr_t)infile);
+  info("Infile %d Outfile %d", infile, outfile);
+  //free(outfile);
+  //free((void*)(intptr_t)infile);
   //fclose(program_state->in_file);
+  close(infile);
+  close(outfile);
   debug("ALL DONE");
   return EXIT_SUCCESS;
 }

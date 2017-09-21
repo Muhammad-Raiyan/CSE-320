@@ -97,7 +97,8 @@ join_string_array(int count, char *array[])
   int len = 0, str_len, cur_str_len;
 
   str_len = array_size(count, array);
-  ret = malloc(str_len+1);
+  ret = (char *) malloc(str_len+1);
+  // check for error
   printf("%d\n", str_len);
   //ret = charArray;
 

@@ -15,19 +15,19 @@ get_encoding_function()
     (program_state->encoding_from - program_state->encoding_to);
   switch (translate) {
     case utf8_to_utf16le:
-      return from_utf8_to_utf16le;
+      return &from_utf8_to_utf16le;
     case utf8_to_utf16be:
-      return from_utf8_to_utf16be;
+      return &from_utf8_to_utf16be;
     case utf16le_to_utf16be:
-      return from_utf16le_to_utf16be;
+      return &from_utf16le_to_utf16be;
     case utf16be_to_utf16le:
-      return from_utf16be_to_utf16le;
+      return &from_utf16be_to_utf16le;
     case utf16be_to_utf8:
-      return from_utf16be_to_utf8;
+      return &from_utf16be_to_utf8;
     case utf16le_to_utf8:
-      return from_utf16le_to_utf8;
+      return &from_utf16le_to_utf8;
     case transcribe_file:
-      return transcribe;
+      return &transcribe;
   }
   return NULL;
 }
