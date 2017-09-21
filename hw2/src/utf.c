@@ -4,6 +4,10 @@
 #include <sys/sendfile.h>
 #include <unistd.h>
 
+const char *STR_UTF16BE = "UTF16BE";
+const char *STR_UTF16LE = "UTF16LE";
+const char *STR_UTF8  = "UTF8";
+
 convertion_func_t
 get_encoding_function()
 {
