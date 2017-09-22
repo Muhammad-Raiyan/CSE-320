@@ -141,3 +141,7 @@ print_state()
          program_state->encoding_to, program_state->encoding_from,
          program_state->in_file, program_state->out_file);
 }
+
+void freeAll(){
+  free(program_state);
+}

@@ -27,13 +27,11 @@ main(int argc, char *argv[])
   if(program_state != NULL) {
     close(infile);
   }
-  //I think this is how this works
-  info("Infile %d Outfile %d", infile, outfile);
-  //free(outfile);
-  //free((void*)(intptr_t)infile);
-  //fclose(program_state->in_file);
+
+  freeAll();
   close(infile);
   close(outfile);
   debug("ALL DONE");
   return EXIT_SUCCESS;
 }
+
