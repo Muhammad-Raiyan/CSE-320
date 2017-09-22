@@ -44,7 +44,7 @@ check_bom()
     exit(EXIT_FAILURE);
   }
   fd = Open(program_state->in_file, O_RDONLY);
-
+  debug("FD: %d", fd);
   if ((bytes_read = read_to_bigendian(fd, &bom, 3)) < 3) {
     fprintf(stderr, "%s\n", "File contains invalid BOM or is empty beyond BOM");
     exit(EXIT_FAILURE);
@@ -55,7 +55,7 @@ check_bom()
     info("Source BOM: %s", STR_UTF8);
     program_state->encoding_from = UTF8;
     program_state->bom_length = 3;
-    close(fd);
+    //close(fd);
     return;
   }
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
@@ -78,7 +78,7 @@ check_bom()
     fprintf(stderr, "%s\n", "Unrecognized BOM");
     exit(EXIT_FAILURE);
   }
-  close(fd);
+  //close(fd);
 }
 
 int

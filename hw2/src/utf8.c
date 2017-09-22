@@ -49,13 +49,13 @@ from_utf8_to_utf16be(int infile, int outfile)
   utf16_glyph_t utf16_buf;
 
   bom = UTF16BE;
-  info("encoding bom %x", bom);
+  //info("encoding bom %x", bom);
   #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   reverse_bytes(&bom, 2);
-  info("encoding bom %x", bom);
+  //info("encoding bom %x", bom);
   #endif
   write_to_bigendian(outfile, &bom, 2);
-  info("encoding bom %x", bom);
+  //info("encoding bom %x", bom);
   while((bytes_read = read_to_bigendian(infile, &utf8_buf.bytes[0], 1)) > 0) {
     if((remaining_bytes = remaining_utf8_bytes(utf8_buf.bytes[0]))) {
       if((bytes_read = read_to_bigendian(infile, &utf8_buf.bytes[1], remaining_bytes)) < 0) {
@@ -63,6 +63,7 @@ from_utf8_to_utf16be(int infile, int outfile)
       }
     }
     code_point = get_utf8_decoding_function(remaining_bytes + 1)(utf8_buf);
+    //if(code_point==(code_point_t)bom) continue;
     debug("code_point: %x", code_point);
     utf16_buf = code_point_to_utf16be_glyph(code_point, &size_of_glyph);
     info("utf16_buf; up -> %x low -> %x", utf16_buf.upper_bytes, utf16_buf.lower_bytes);

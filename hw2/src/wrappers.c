@@ -44,6 +44,7 @@ read_to_bigendian(int fd, void* buf, size_t count)
 /*#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   reverse_bytes(buf, count);
 #endif*/
+  //close(fd);
   return bytes_read;
 }
 
@@ -56,6 +57,7 @@ write_to_bigendian(int fd, void* buf, size_t count)
   reverse_bytes(buf, count);
 #endif*/
   bytes_read = write(fd, buf, count);
+  //close(fd);
   return bytes_read;
 }
 
