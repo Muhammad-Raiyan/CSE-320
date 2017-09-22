@@ -50,6 +50,7 @@ code_point_to_utf16be_glyph(code_point_t code_point, size_t *size_of_glyph)
 
   memeset(&ret, 0, sizeof ret);
   if(is_code_point_surrogate(code_point)) {
+    debug("Is sp");
     code_point -= 0x10000;
     ret.upper_bytes = (code_point >> 10) + 0xD800;
     ret.lower_bytes = (code_point & 0x3FF) + 0xDC00;
@@ -60,6 +61,7 @@ code_point_to_utf16be_glyph(code_point_t code_point, size_t *size_of_glyph)
     *size_of_glyph = 4;
   }
   else {
+    debug("Not sp");
     ret.upper_bytes |= code_point;
   #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
     reverse_bytes(&ret.upper_bytes, 2);
