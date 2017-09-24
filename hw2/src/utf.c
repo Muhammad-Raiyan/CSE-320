@@ -44,15 +44,15 @@ check_bom()
     exit(EXIT_FAILURE);
   }
   fd = Open(program_state->in_file, O_RDONLY);
-  debug("FD: %d", fd);
+  //debug("FD: %d", fd);
   if ((bytes_read = read_to_bigendian(fd, &bom, 3)) < 3) {
     fprintf(stderr, "%s\n", "File contains invalid BOM or is empty beyond BOM");
     exit(EXIT_FAILURE);
   }
-  debug("BOM: %x", bom);
+  //debug("BOM: %x", bom);
   if(bom == UTF8)
   {
-    info("Source BOM: %s", STR_UTF8);
+    //info("Source BOM: %s", STR_UTF8);
     program_state->encoding_from = UTF8;
     program_state->bom_length = 3;
     //close(fd);
@@ -61,15 +61,15 @@ check_bom()
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   reverse_bytes(&bom, 2);
 #endif
-  debug("BOM AFTER SWAP: %x", bom);
+  //debug("BOM AFTER SWAP: %x", bom);
   if (LOWER_TWO_BYTES(bom) == UTF16LE) {
-    info("Source BOM: %s", STR_UTF16LE);
+    //info("Source BOM: %s", STR_UTF16LE);
     program_state->encoding_from = UTF16LE;
     program_state->bom_length = 2;
   }
   elsif(LOWER_TWO_BYTES(bom) == UTF16BE)
   {
-    info("Source BOM: %s", STR_UTF16BE);
+    //info("Source BOM: %s", STR_UTF16BE);
     program_state->encoding_from = UTF16BE;
     program_state->bom_length = 2;
   }
@@ -110,19 +110,19 @@ code_point_t
 utf16_glyph_to_code_point(utf16_glyph_t *glyph)
 {
   code_point_t ret = 0;
-  if(!is_upper_surrogate_pair(*glyph)) {
+  /*if(!is_upper_surrogate_pair(*glyph)) {
     ret = glyph->upper_bytes;
   }
-  else {
+  else {*/
     ret = (((glyph->upper_bytes - 0xD800) << 10) |
           ((glyph->lower_bytes - 0xDC00) & 0x3FF)) +
           0x10000;
-  }
+  //}
   return ret;
 }
 
 bool
 is_code_point_surrogate(code_point_t code_point)
 {
-  return (code_point >= 0x10000);
+  return (code_point > 0x10000);
 }

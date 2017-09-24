@@ -21,19 +21,19 @@ parse_args(int argc, char *argv[])
   char *joined_argv;
 
   joined_argv = join_string_array(argc, argv);
-  info("argc: %d argv: %s", argc, joined_argv);
+  //info("argc: %d argv: %s", argc, joined_argv);
   free(joined_argv);
 
   program_state = Calloc(1, sizeof(state_t));
   for (i = 0; optind < argc; ++i) {
-    debug("%d opterr: %d", i, opterr);
-    debug("%d optind: %d", i, optind);
-    debug("%d optopt: %d", i, optopt);
-    debug("%d argv[optind]: %s", i, argv[optind]);
+    //debug("%d opterr: %d", i, opterr);
+    //debug("%d optind: %d", i, optind);
+    //debug("%d optopt: %d", i, optopt);
+    //debug("%d argv[optind]: %s", i, argv[optind]);
     if ((option = getopt(argc, argv, "+e:")) != -1) {
       switch (option) {
         case 'e': {
-          info("Encoding Argument: %s", optarg);
+          //info("Encoding Argument: %s", optarg);
           if ((program_state->encoding_to = determine_format(optarg)) == 0)
             goto errorcase;
           break;
