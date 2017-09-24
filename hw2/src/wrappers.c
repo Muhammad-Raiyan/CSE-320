@@ -78,15 +78,17 @@ reverse_bytes(void* bufp, size_t count)
 void
 *memeset(void *s, int c, size_t n) {
   //register char* stackpointer asm("esp"); //initialize stackpointer pointer with the value of the actual stackpointer
-  //if((s+n)==stackpointer)
+  //info("stackpointer %d", *stackpointer);
+
     memset(s, c, n);
   return s;
 };
 
 void
 *memecpy(void *dest, void const *src, size_t n) {
-  //register char* stackpointer asm("esp"); //initialize stackpointer pointer with the value of the actual stackpointer
+  register char* stackpointer asm("esp"); //initialize stackpointer pointer with the value of the actual stackpointer
   //if((dest+n)==stackpointer)
+  printf("sp nt null 82.wrappers.c: %d\n", *stackpointer) ;
     memcpy(dest, src, n);
   return dest;
 };

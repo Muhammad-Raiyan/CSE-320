@@ -92,15 +92,11 @@ char*
 join_string_array(int count, char *array[])
 {
   char *ret = NULL;
-  //char charArray[count];
   int i;
   int len = 0, str_len, cur_str_len;
 
   str_len = array_size(count, array);
-  ret = (char *) malloc(str_len+1);
-  // check for error
-  //printf("%d\n", str_len);
-  //ret = charArray;
+  ret = (char *) Malloc(str_len+1);
 
   for (i = 0; i < count; ++i) {
     cur_str_len = strlen(array[i]);
