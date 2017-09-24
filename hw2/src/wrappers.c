@@ -80,15 +80,18 @@ void
   //register char* stackpointer asm("esp"); //initialize stackpointer pointer with the value of the actual stackpointer
   //info("stackpointer %d", *stackpointer);
 
-    memset(s, c, n);
+  if(memset(s, c, n)==NULL) {
+    printf("Error in memset\n");
+  }
   return s;
 };
 
 void
 *memecpy(void *dest, void const *src, size_t n) {
-  register char* stackpointer asm("esp"); //initialize stackpointer pointer with the value of the actual stackpointer
+  //register char* stackpointer asm("esp"); //initialize stackpointer pointer with the value of the actual stackpointer
   //if((dest+n)==stackpointer)
-  printf("sp nt null 82.wrappers.c: %d\n", *stackpointer) ;
-    memcpy(dest, src, n);
+  if(memcpy(dest, src, n)==NULL){
+    printf("Error in memecpy\n");
+  }
   return dest;
 };
