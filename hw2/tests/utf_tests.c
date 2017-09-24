@@ -130,19 +130,3 @@ Test(args_suite, determine_format) {
 // STUDENT UNIT TESTS SHOULD BE WRITTEN BELOW
 // DO NOT DELETE THESE COMMENTS
 //############################################
-
-Test(utf16_UTF8_suite, glyph_to_code_point) {
-    code_point_t cp1 = 0xe9;
-    utf16_glyph_t utf16_in1;
-    utf16_in1.upper_bytes =0xc3;
-    utf16_in1.lower_bytes = 0xa9;
-    code_point_t cp2 =utf16_glyph_to_code_point(&utf16_in1);
-    printf("Res: %x\n", cp2);
-    cr_assert_eq(cp2, cp1);
-
-    //cr_assert_not(is_code_point_surrogate(cp2));
-
-    //cr_assert_not(is_code_point_surrogate(cp3));
-
-    //cr_assert(is_code_point_surrogate(cp4));
-}
