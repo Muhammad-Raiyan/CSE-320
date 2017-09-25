@@ -31,6 +31,8 @@ parse_args(int argc, char *argv[])
     //debug("%d optopt: %d", i, optopt);
     //debug("%d argv[optind]: %s", i, argv[optind]);
     if ((option = getopt(argc, argv, "+e:")) != -1) {
+      if(argc >= 6 && optopt != 'h') goto errorcase;
+      if(argc < 5) goto errorcase;
       switch (option) {
         case 'e': {
           //info("Encoding Argument: %s", optarg);
@@ -39,7 +41,11 @@ parse_args(int argc, char *argv[])
           break;
         }
         case '?': {
-          if (optopt != 'h'){
+          if (optopt == 'h') {
+            USAGE(argv[0]);
+            exit(EXIT_SUCCESS);
+          }
+          else {
             fprintf(stderr, KRED "-%c is not a supported argument\n" KNRM,
                     optopt);
             USAGE(argv[0]);
@@ -48,7 +54,7 @@ parse_args(int argc, char *argv[])
           }
         errorcase:
           USAGE(argv[0]);
-          exit(0);
+          exit(EXIT_FAILURE);
         }
         default: {
           break;

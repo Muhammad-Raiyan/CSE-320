@@ -81,7 +81,8 @@ void
   //info("stackpointer %d", *stackpointer);
 
   if(memset(s, c, n)==NULL) {
-    printf("Error in memset\n");
+    perror("Error in memset\n");
+    exit(EXIT_FAILURE);
   }
   return s;
 };
@@ -91,7 +92,8 @@ void
   //register char* stackpointer asm("esp"); //initialize stackpointer pointer with the value of the actual stackpointer
   //if((dest+n)==stackpointer)
   if(memcpy(dest, src, n)==NULL){
-    printf("Error in memecpy\n");
+    perror("Error in memecpy\n");
+    exit(EXIT_FAILURE);
   }
   return dest;
 };
