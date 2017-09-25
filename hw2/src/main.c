@@ -16,6 +16,7 @@ main(int argc, char *argv[])
   out_flags = O_WRONLY | O_CREAT | O_TRUNC;
   infile = Open(program_state->in_file, in_flags);
   outfile = Open(program_state->out_file, out_flags);
+  check_inode(infile, outfile);
   //info("open success. Infile: %d Outfile %d in_flags %d out_flags %d", infile, outfile, in_flags, out_flags);
   lseek(SEEK_SET, program_state->bom_length, infile); /* Discard BOM */
   //debug("Success: lseek()");

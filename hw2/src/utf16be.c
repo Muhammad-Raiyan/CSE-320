@@ -58,6 +58,7 @@ from_utf16be_to_utf8(int infile, int outfile)
     } else {
       code_point = utf16_buf.upper_bytes;
     }
+
     info("UTF16 ub: %x lb: %x", utf16_buf.upper_bytes, utf16_buf.lower_bytes);
 
     size_of_glyph = utf8_glyph_size_of_code_point(code_point);

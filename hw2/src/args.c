@@ -39,9 +39,13 @@ parse_args(int argc, char *argv[])
           break;
         }
         case '?': {
-          if (optopt != 'h')
+          if (optopt != 'h'){
             fprintf(stderr, KRED "-%c is not a supported argument\n" KNRM,
                     optopt);
+            USAGE(argv[0]);
+            exit(EXIT_FAILURE);
+
+          }
         errorcase:
           USAGE(argv[0]);
           exit(0);
@@ -138,6 +142,23 @@ print_state()
          program_state->in_file, program_state->out_file);
 }
 
+
 void freeAll(){
   free(program_state);
+}
+
+void check_inode(int infile, int outfile){
+  struct stat infile_stat, outfile_stat;
+  if(fstat(infile, &infile_stat)<0){
+    info("infile < 0");
+    exit(EXIT_FAILURE);
+  }
+  if(fstat(outfile, &outfile_stat)<0){
+    info("outfile <0");
+    exit(EXIT_FAILURE);
+  }
+  if((infile_stat.st_dev == outfile_stat.st_dev) && (infile_stat.st_ino == outfile_stat.st_ino)){
+    info("same file");
+    exit(EXIT_FAILURE);
+  }
 }

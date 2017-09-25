@@ -132,6 +132,8 @@ void parse_args(int argc, char *argv[]);
 
 void freeAll();
 
+void check_inode(int infile, int outfile);
+
 char *join_string_array(int argc, char *argv[]);
 
 int array_size(int count, char *array[]);
