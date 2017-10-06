@@ -185,3 +185,21 @@ Test(sf_memsuite_student, realloc_smaller_block_free_block, .init = sf_mem_init,
 //DO NOT DELETE THESE COMMENTS
 //############################################
 
+Test(sf_memsuite_student, Malloc_an_Integer_check_sf_errno, .init = sf_mem_init, .fini = sf_mem_fini) {
+	sf_errno = 0;
+	int *x = NULL;
+
+
+	x =sf_malloc(0);
+	cr_expect(sf_errno == EINVAL, "sf_errno is not EINVAL for 0!");
+	cr_expect(x == NULL, "X is not null for 0!");
+
+	sf_errno = 0;
+	x = sf_malloc(4*PAGE_SZ+1);
+	cr_assert(sf_errno == EINVAL, "sf_errno is not EINVAL for > 4 PAGE_SZ!");
+	cr_assert(x == NULL, "X is not null for > 4 PAGE_SZ!");
+
+	sf_errno = 0;
+	x = sf_malloc(PAGE_SZ);
+	cr_assert(sf_errno == 0, "sf_errno is not 0 for 1 PAGE_SZ!");
+}
