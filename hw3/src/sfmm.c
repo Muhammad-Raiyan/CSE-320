@@ -22,7 +22,7 @@ free_list seg_free_list[4] = {
 };
 //static int page_count = 0;
 int sf_errno = 0;
-
+static int count_page = 0;
 void *sf_malloc(size_t size) {
     void* mem_start = NULL;
 
@@ -31,20 +31,31 @@ void *sf_malloc(size_t size) {
         return NULL;
     }
 
-
-    if(get_heap_start()==NULL){
+    if(count_page == 0){
         /* TODO CHECK HEAP OVERFLOW */
         mem_start = sf_sbrk();
-        sf_header *allocated_mem = mem_start;
-        //sf_footer *alloc_boundary = (void *)allocated_mem+size;
+        count_page++;
+        char *heap_start = (char *)get_heap_start();
+        char *heap_end = (char *) get_heap_end() - 8;
+        /*printf("%p\n", heap_start);
+        printf("%p\n", heap_end);
+        printf("%ld\n", heap_start - heap_end);*/
+        printf("Heap Start %p\n", heap_start);
+        sf_free_header *free_header_node = (sf_free_header * ) set_header_bits((void *)heap_start, false, false, PAGE_SZ);
+        free_header_node->next = NULL;
+        free_header_node->prev = NULL;
+        set_footer_bits((void *)heap_end , false, false, PAGE_SZ, PAGE_SZ);
 
-        set_header_bits(allocated_mem, true, false, size);
-        //set_footer_bits(alloc_boundary, true, false, size, size);
-        printf("%p\n", allocated_mem);
-        //printf("%p\n", alloc_boundary);
+        seg_free_list[3].head = free_header_node;
     }
+
+    sf_free_header *allocate_from_list =get_seg_free_list_header(seg_free_list, size);
+    printf("List: %p\n", allocate_from_list);
+    //sf_header *allocHead = getFreeBlock(allocate_from_list);
 	return mem_start;
 }
+
+
 
 
 
