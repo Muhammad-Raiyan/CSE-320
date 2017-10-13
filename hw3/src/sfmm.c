@@ -24,7 +24,7 @@ free_list seg_free_list[4] = {
 int sf_errno = 0;
 static int count_page = 0;
 void *sf_malloc(size_t size) {
-    void* memStart = NULL;
+    //void* memStart = NULL;
 
     if(size == 0 || size > 4*PAGE_SZ){
         sf_errno = EINVAL;
@@ -33,7 +33,7 @@ void *sf_malloc(size_t size) {
 
     if(count_page == 0){
         /* TODO CHECK HEAP OVERFLOW */
-        memStart = sf_sbrk();
+        sf_sbrk();
 
         count_page++;
         char *heapStart = (char *)get_heap_start();
@@ -46,27 +46,27 @@ void *sf_malloc(size_t size) {
         free_header_node->next = NULL;
         free_header_node->prev = NULL;
         set_footer_bits((void *)heapEnd , false, false, PAGE_SZ, PAGE_SZ);
-        sf_blockprint(memStart);
+        //sf_blockprint(heapStart);
         seg_free_list[3].head = free_header_node;
     }
 
-    sf_free_header *targetListHead = get_seg_free_list_header(seg_free_list, size);
+    sf_free_header *targetListHead = get_seg_free_list_head(seg_free_list, size);
 
     sf_free_header *targetNode = getFreeBlock(targetListHead, size);
-    sf_header *freeBlockHeader = getFreeBlockHeader(targetListHead, size);
-    //sf_footer *freeBlockFooter = getBlockFooter(freeBlockHeader);
-
+    sf_header *freeBlockHeader = &(targetNode->header);
+    sf_snapshot();
+    removeFromList(targetNode);
+    sf_snapshot();
     size_t oldSize = freeBlockHeader->block_size << 4;
     void *payload = allocate_payload(freeBlockHeader, size);
-    sf_blockprint(freeBlockHeader);
-    //sf_snapshot();
+    //sf_blockprint(freeBlockHeader);
     sf_header *newFreeHeader = getNewFreeHeader(freeBlockHeader, oldSize, size);
-    //sf_snapshot();
-    sf_blockprint(newFreeHeader);
+    //sf_blockprint(newFreeHeader);
 
-    targetNode = (sf_free_header *)newFreeHeader;
-    seg_free_list[3].head = targetNode;
-    printf("%p\n", targetNode);
+    //updateFreeList(newFreeHeader);
+    appendToList(newFreeHeader);
+    //seg_free_list[3].head = (sf_free_header *)newFreeHeader;
+
     sf_snapshot();
 	return payload;
 }

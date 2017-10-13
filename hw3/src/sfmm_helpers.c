@@ -25,12 +25,12 @@ void set_footer_bits(sf_footer *footer,  bool alloc, bool padded, size_t blk_siz
 
     footer -> two_zeroes = 0;
     footer -> block_size = blk_size >> 4;
-    footer -> requested_size =req_size;
+    footer -> requested_size = req_size;
 
 }
 
 
-sf_free_header *get_seg_free_list_header(free_list *list, size_t size){
+sf_free_header *get_seg_free_list_head(free_list *list, size_t size){
 
     if(size <LIST_1_MAX && hasFreeBlock(list[0], size)){
         return list[0].head;
@@ -90,6 +90,64 @@ sf_footer *getBlockFooter(sf_header *header){
     return footer;
 }
 
+sf_header *getNewFreeHeader(sf_header *allocatedHeader, size_t oldSize, size_t reqSize){
+    size_t paddedSize = get_padded_size(reqSize);
+    size_t freeBlockSize = oldSize - (paddedSize+16);
+
+    sf_footer *allocatedFooterPtr = (sf_footer *)((char *) allocatedHeader + paddedSize + 8);
+    char *freeHeaderPtr = (char*)allocatedFooterPtr+8;
+    sf_footer *oldFreeFooter =(sf_footer *)(freeHeaderPtr + freeBlockSize - 8);
+
+
+    sf_header *newFreeHeader = set_header_bits((sf_header *)freeHeaderPtr, false, false, freeBlockSize);
+    set_footer_bits(oldFreeFooter, false, false, freeBlockSize, freeBlockSize);
+    //sf_blockprint(newFreeHeader);
+    return newFreeHeader;
+}
+
+void updateFreeList(sf_free_header *headNode, sf_header *freeHeader){
+    //size_t size = freeHeader->block_size;
+
+
+}
+
+void removeFromList(sf_free_header *target){
+    sf_header data = target->header;
+    size_t blockSize = data.block_size << 4;
+    int list_ind = getListIndex(blockSize);
+    sf_free_header **listHead = &seg_free_list[list_ind].head;
+
+    // If target is the headnode
+    if(*listHead == target){
+        *listHead = NULL;
+    }
+
+    // Change next only if node to be deleted is NOT the last node
+    if(target->next != NULL){
+        target->prev->next = target->next;
+    }
+
+    // Change prev only if node to be deleted is NOT the first node
+    if(target->prev != NULL){
+        target->prev->next = target->next;
+    }
+}
+
+void appendToList(sf_header *node){
+    size_t blockSize = (node)->block_size << 4;
+    int list_ind = getListIndex(blockSize);
+    sf_free_header *cand = (sf_free_header *) node;
+    sf_free_header **listHead = &seg_free_list[list_ind].head;
+    cand->prev = NULL;
+    cand -> next = *listHead;
+
+    if(*listHead != NULL){
+        (*listHead)->prev = cand;
+    }
+
+    *listHead = cand;
+}
+
 size_t get_padded_size(size_t size){
     if(size%16 == 0) {
         return size;
@@ -102,29 +160,17 @@ size_t get_padded_size(size_t size){
     return size;
 }
 
-sf_header *getNewFreeHeader(sf_header *allocatedHeader, size_t oldSize, size_t reqSize){
-    size_t paddedSize = get_padded_size(reqSize);
-    size_t freeBlockSize = oldSize - (paddedSize+16);
-    //size_t freeBlockSize = freePldSize + 16;
-
-    sf_footer *allocatedFooterPtr = (sf_footer *)((char *) allocatedHeader + paddedSize + 8);
-    char *freeHeaderPtr = (char*)allocatedFooterPtr+8;
-    sf_footer *oldFreeFooter =(sf_footer *)(freeHeaderPtr + freeBlockSize - 8);
-
-
-    sf_header *newFreeHeader = set_header_bits((sf_header *)freeHeaderPtr, false, false, freeBlockSize);
-    set_footer_bits(oldFreeFooter, false, false, freeBlockSize, freeBlockSize);
-    sf_blockprint(newFreeHeader);
-    //sf_varprint(newFreeHeader);
-    return newFreeHeader;
+int getListIndex(size_t size){
+    if(size <LIST_1_MAX){
+        return 0;
+    }
+    else if(size <LIST_2_MAX){
+        return 1;
+    }
+    else if(size <LIST_3_MAX){
+        return 2;
+    }
+    else {
+        return 3;
+    }
 }
-/*
-debug("allocatedHeader %p\n", allocatedHeader);
-    debug("footerPtr %p\n", footerPtr);
-    debug("Diff of alloc block %ld\n", (char *)footerPtr - (char *)allocatedHeader);
-    debug("freeHeaderPtr %p\n", freeHeaderPtr);
-    debug("oldFreeFooter %p\n", oldFreeFooter);
-    debug("Diff of header %ld\n", freeHeaderPtr - (char *)allocatedHeader);
-    debug("FREE BLOCK %ld", freeBlockSize);
-    debug("Diff %ld", (char *)oldFreeFooter - (char *)freeHeaderPtr);
-    debug("Total diff %ld", (char *)oldFreeFooter-(char *)allocatedHeader );*/
