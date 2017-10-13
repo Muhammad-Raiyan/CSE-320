@@ -24,7 +24,7 @@ free_list seg_free_list[4] = {
 int sf_errno = 0;
 static int count_page = 0;
 void *sf_malloc(size_t size) {
-    void* mem_start = NULL;
+    void* memStart = NULL;
 
     if(size == 0 || size > 4*PAGE_SZ){
         sf_errno = EINVAL;
@@ -33,30 +33,57 @@ void *sf_malloc(size_t size) {
 
     if(count_page == 0){
         /* TODO CHECK HEAP OVERFLOW */
-        mem_start = sf_sbrk();
+        memStart = sf_sbrk();
+
         count_page++;
-        char *heap_start = (char *)get_heap_start();
-        char *heap_end = (char *) get_heap_end() - 8;
-        /*printf("%p\n", heap_start);
-        printf("%p\n", heap_end);
-        printf("%ld\n", heap_start - heap_end);*/
-        printf("Heap Start %p\n", heap_start);
-        sf_free_header *free_header_node = (sf_free_header * ) set_header_bits((void *)heap_start, false, false, PAGE_SZ);
+        char *heapStart = (char *)get_heap_start();
+        char *heapEnd = (char *) get_heap_end() - 8;
+
+        debug("Heap Start %p\n", heapStart);
+        debug("Head end %p\n", heapEnd);
+        debug("%ld\n", heapStart - heapEnd);
+        sf_free_header *free_header_node = (sf_free_header * ) set_header_bits((void *)heapStart, false, false, PAGE_SZ);
         free_header_node->next = NULL;
         free_header_node->prev = NULL;
-        set_footer_bits((void *)heap_end , false, false, PAGE_SZ, PAGE_SZ);
-
+        set_footer_bits((void *)heapEnd , false, false, PAGE_SZ, PAGE_SZ);
+        sf_blockprint(memStart);
         seg_free_list[3].head = free_header_node;
     }
 
-    sf_free_header *allocate_from_list =get_seg_free_list_header(seg_free_list, size);
-    printf("List: %p\n", allocate_from_list);
-    //sf_header *allocHead = getFreeBlock(allocate_from_list);
-	return mem_start;
+    sf_free_header *targetListHead = get_seg_free_list_header(seg_free_list, size);
+
+    sf_free_header *targetNode = getFreeBlock(targetListHead, size);
+    sf_header *freeBlockHeader = getFreeBlockHeader(targetListHead, size);
+    //sf_footer *freeBlockFooter = getBlockFooter(freeBlockHeader);
+
+    size_t oldSize = freeBlockHeader->block_size << 4;
+    void *payload = allocate_payload(freeBlockHeader, size);
+    sf_blockprint(freeBlockHeader);
+    //sf_snapshot();
+    sf_header *newFreeHeader = getNewFreeHeader(freeBlockHeader, oldSize, size);
+    //sf_snapshot();
+    sf_blockprint(newFreeHeader);
+
+    targetNode = (sf_free_header *)newFreeHeader;
+    seg_free_list[3].head = targetNode;
+    printf("%p\n", targetNode);
+    sf_snapshot();
+	return payload;
 }
 
 
+void *allocate_payload(sf_header *header, size_t size){
+    bool needsPadding = false;
+    size_t paddedSize = get_padded_size(size);
+    if(size != paddedSize) needsPadding = true;
+    size_t blockSize = paddedSize + 16;
 
+    char *allocBlockHeader = set_header_bits(header, true, needsPadding, blockSize);
+    char *payloadPtr = (char *)allocBlockHeader + 8;
+    char *footerPtr = ((char *) allocBlockHeader + paddedSize +8);
+    set_footer_bits((sf_footer *)footerPtr, true, needsPadding, blockSize, size+16);
+    return (void *) payloadPtr;
+}
 
 
 void *sf_realloc(void *ptr, size_t size) {

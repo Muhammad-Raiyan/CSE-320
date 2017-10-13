@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <debug.h>
 
 #define HEADER_UNUSED_BITS 32
 #define BLOCK_SIZE_BITS 28
