@@ -58,14 +58,21 @@ void *sf_malloc(size_t size) {
     sf_free_header *targetListHead = get_seg_free_list_head(seg_free_list, size);
     sf_free_header *targetNode = getFreeBlock(targetListHead, size);
     sf_header *freeBlockHeader = &(targetNode->header);
-    //sf_snapshot();
-    removeFromList(targetNode);
-    //sf_snapshot();
 
     size_t oldSize = freeBlockHeader->block_size << 4;
+    size_t allocSize = get_padded_size(size)+16;
+    size_t sizeDiff = oldSize - allocSize;
+    if(sizeDiff < 32) {
+        size = size + sizeDiff;
+        targetListHead = get_seg_free_list_head(seg_free_list, size);
+        targetNode = getFreeBlock(targetListHead, size);
+        freeBlockHeader = &(targetNode->header);
+    }
+
+    removeFromList(targetNode);
     void *payload = allocate_payload(freeBlockHeader, size);
     sf_header *newFreeHeader = getNewFreeHeader(freeBlockHeader, oldSize, size);
-    appendToList(newFreeHeader);
+    if(newFreeHeader->block_size<<4!=0)appendToList(newFreeHeader);
 
     //sf_snapshot();
     //sf_mem_fini();
