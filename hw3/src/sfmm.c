@@ -20,57 +20,67 @@ free_list seg_free_list[4] = {
     {NULL, LIST_3_MIN, LIST_3_MAX},
     {NULL, LIST_4_MIN, LIST_4_MAX}
 };
-//static int page_count = 0;
 int sf_errno = 0;
 static int count_page = 0;
-void *sf_malloc(size_t size) {
-    //void* memStart = NULL;
 
-    if(size == 0 || size > 4*PAGE_SZ){
-        sf_errno = EINVAL;
-        return NULL;
+void *sf_malloc(size_t size) {
+    //sf_mem_init();
+    if(size <= 0 || size > 4*PAGE_SZ){
+        goto errorEINVAL;
+    }
+
+    if(count_page >= 4){
+        goto errorENOMEM;
     }
 
     if(count_page == 0){
-        /* TODO CHECK HEAP OVERFLOW */
-        sf_sbrk();
-
+        void* memStart = sf_sbrk();
         count_page++;
-        char *heapStart = (char *)get_heap_start();
-        char *heapEnd = (char *) get_heap_end() - 8;
+        appendToList(pageToMemoryBlock(memStart));
+    }
 
-        debug("Heap Start %p\n", heapStart);
-        debug("Head end %p\n", heapEnd);
-        debug("%ld\n", heapStart - heapEnd);
-        sf_free_header *free_header_node = (sf_free_header * ) set_header_bits((void *)heapStart, false, false, PAGE_SZ);
-        free_header_node->next = NULL;
-        free_header_node->prev = NULL;
-        set_footer_bits((void *)heapEnd , false, false, PAGE_SZ, PAGE_SZ);
-        //sf_blockprint(heapStart);
-        seg_free_list[3].head = free_header_node;
+    sf_free_header *tempTargetListHead = get_seg_free_list_head(seg_free_list, size);
+
+    while(tempTargetListHead ==NULL){
+        if(count_page >= 4){
+            goto errorENOMEM;
+        }
+        void * pgStart= sf_sbrk();
+        count_page++;
+        sf_header *temp_free_header = pageToMemoryBlock(pgStart);
+        if(!canCoalesce(temp_free_header)) appendToList(temp_free_header);
+        else {
+            coalesce(temp_free_header);
+        }
+        tempTargetListHead = get_seg_free_list_head(seg_free_list, size);
     }
 
     sf_free_header *targetListHead = get_seg_free_list_head(seg_free_list, size);
-
     sf_free_header *targetNode = getFreeBlock(targetListHead, size);
     sf_header *freeBlockHeader = &(targetNode->header);
-    sf_snapshot();
+    //sf_snapshot();
     removeFromList(targetNode);
-    sf_snapshot();
+    //sf_snapshot();
+
     size_t oldSize = freeBlockHeader->block_size << 4;
     void *payload = allocate_payload(freeBlockHeader, size);
-    //sf_blockprint(freeBlockHeader);
     sf_header *newFreeHeader = getNewFreeHeader(freeBlockHeader, oldSize, size);
-    //sf_blockprint(newFreeHeader);
-
-    //updateFreeList(newFreeHeader);
     appendToList(newFreeHeader);
-    //seg_free_list[3].head = (sf_free_header *)newFreeHeader;
 
-    sf_snapshot();
+    //sf_snapshot();
+    //sf_mem_fini();
 	return payload;
-}
 
+    errorEINVAL:
+        sf_errno = EINVAL;
+        //sf_mem_fini();
+        return NULL;
+
+    errorENOMEM:
+        sf_errno = ENOMEM;
+        //sf_mem_fini();
+        return NULL;
+}
 
 void *allocate_payload(sf_header *header, size_t size){
     bool needsPadding = false;
@@ -93,3 +103,19 @@ void *sf_realloc(void *ptr, size_t size) {
 void sf_free(void *ptr) {
 	return;
 }
+
+void coalesce(sf_header *currentHeader){
+    sf_footer *prevFooter = (sf_footer *)((char *)currentHeader-8);
+
+    size_t currentBlockSize = currentHeader->block_size << 4;
+    size_t prevBlockSize = prevFooter->block_size << 4;
+
+    sf_footer *currentFooter = (sf_footer *)((char *)currentHeader+currentBlockSize-8);
+    sf_header *prevHeader = (sf_header *)((char *)prevFooter-prevBlockSize+8);
+    removeFromList((sf_free_header *)prevHeader);
+    size_t newBlockSize = prevBlockSize + currentBlockSize;
+    prevHeader->block_size = newBlockSize >> 4;
+    currentFooter->block_size = newBlockSize >> 4;
+    appendToList(prevHeader);
+}
+

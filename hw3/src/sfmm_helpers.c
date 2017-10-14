@@ -29,29 +29,43 @@ void set_footer_bits(sf_footer *footer,  bool alloc, bool padded, size_t blk_siz
 
 }
 
+sf_header *pageToMemoryBlock(void *memStart){
+    char *heapStart = (char *)memStart;
+    char *heapEnd = heapStart + PAGE_SZ - 8;
 
-sf_free_header *get_seg_free_list_head(free_list *list, size_t size){
+    /*debug("\nHeap Start %p\n", heapStart);
+    debug("Head end %p\n", heapEnd);
+    debug("%ld\n", heapStart - heapEnd);*/
+    sf_header *free_header_node = set_header_bits((void *)heapStart, false, false, PAGE_SZ);
+    set_footer_bits((void *)heapEnd, false, false, PAGE_SZ, 0);
+    return free_header_node;
+}
 
-    if(size <LIST_1_MAX && hasFreeBlock(list[0], size)){
+sf_free_header *get_seg_free_list_head(free_list *list, size_t reqSize){
+
+    size_t size = get_padded_size(reqSize) + 16;
+
+    if(size <LIST_1_MAX && hasFreeBlock(list[0].head, reqSize)){
         return list[0].head;
     }
-    if(size <LIST_2_MAX && hasFreeBlock(list[1], size)){
+    else if(size <LIST_2_MAX && hasFreeBlock(list[1].head, reqSize)){
         return list[1].head;
     }
-    if(size <LIST_3_MAX && hasFreeBlock(list[2], size)){
+    else if(size <LIST_3_MAX && hasFreeBlock(list[2].head, reqSize)){
         return list[2].head;
     }
-    if(size <LIST_4_MAX && hasFreeBlock(list[3], size)){
+    else if(size <LIST_4_MAX && hasFreeBlock(list[3].head, reqSize)){
         return list[3].head;
     }
     return NULL;
 }
 
-bool hasFreeBlock(free_list list, size_t size){
-    sf_free_header *node = list.head;
+bool hasFreeBlock(sf_free_header *listHead, size_t reqSize){
+    sf_free_header *node = listHead;
+    size_t size = get_padded_size(reqSize) + 16;
     while(node != NULL){
         size_t payload_size = node->header.block_size << 4;
-        if(payload_size > size)
+        if(payload_size >= size)
             return true;
         node = node->next;
     }
@@ -100,15 +114,9 @@ sf_header *getNewFreeHeader(sf_header *allocatedHeader, size_t oldSize, size_t r
 
 
     sf_header *newFreeHeader = set_header_bits((sf_header *)freeHeaderPtr, false, false, freeBlockSize);
-    set_footer_bits(oldFreeFooter, false, false, freeBlockSize, freeBlockSize);
+    set_footer_bits(oldFreeFooter, false, false, freeBlockSize, 0);
     //sf_blockprint(newFreeHeader);
     return newFreeHeader;
-}
-
-void updateFreeList(sf_free_header *headNode, sf_header *freeHeader){
-    //size_t size = freeHeader->block_size;
-
-
 }
 
 void removeFromList(sf_free_header *target){
@@ -146,6 +154,14 @@ void appendToList(sf_header *node){
     }
 
     *listHead = cand;
+}
+
+bool canCoalesce(sf_header *header) {
+    sf_footer *prevFooter = (sf_footer *)((char *)header-8);
+    if(prevFooter->allocated == 1)
+        return false;
+    else
+        return true;
 }
 
 size_t get_padded_size(size_t size){
