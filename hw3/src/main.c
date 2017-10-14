@@ -6,9 +6,10 @@ int main(int argc, char const *argv[]) {
 
     sf_mem_init();
     sf_snapshot();
-    double *ptr = sf_malloc(16320);
+    double *ptr = sf_malloc(4049);
     sf_blockprint((char *)ptr-8);
     sf_snapshot();
+
     /*double *ptr4 = sf_malloc(512);
     sf_blockprint((char *)ptr4-8);*/
     //*ptr = 320320320e-320;
