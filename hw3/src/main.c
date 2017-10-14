@@ -3,22 +3,11 @@
 
 int main(int argc, char const *argv[]) {
 
-
     sf_mem_init();
+    void *x = sf_malloc(sizeof(double) * 8);
+    void *y = sf_realloc(x, sizeof(int));
+    (void ) y;
     sf_snapshot();
-    double *ptr = sf_malloc(4049);
-    sf_blockprint((char *)ptr-8);
-    sf_snapshot();
-
-    /*double *ptr4 = sf_malloc(512);
-    sf_blockprint((char *)ptr4-8);*/
-    //*ptr = 320320320e-320;
-
-    //printf("%f\n", *ptr);
-    //sf_snapshot();
-    //sf_varprint(ptr);
-    //sf_free(ptr);
-
     sf_mem_fini();
 
     return EXIT_SUCCESS;

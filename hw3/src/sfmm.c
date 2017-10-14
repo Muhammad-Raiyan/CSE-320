@@ -48,9 +48,9 @@ void *sf_malloc(size_t size) {
         void * pgStart= sf_sbrk();
         count_page++;
         sf_header *temp_free_header = pageToMemoryBlock(pgStart);
-        if(!canCoalesce(temp_free_header)) appendToList(temp_free_header);
+        if(!canCoalesceBack(temp_free_header)) appendToList(temp_free_header);
         else {
-            coalesce(temp_free_header);
+            coalesceBack(temp_free_header);
         }
         tempTargetListHead = get_seg_free_list_head(seg_free_list, size);
     }
@@ -74,18 +74,14 @@ void *sf_malloc(size_t size) {
     sf_header *newFreeHeader = getNewFreeHeader(freeBlockHeader, oldSize, size);
     if(newFreeHeader->block_size<<4!=0)appendToList(newFreeHeader);
 
-    //sf_snapshot();
-    //sf_mem_fini();
 	return payload;
 
     errorEINVAL:
         sf_errno = EINVAL;
-        //sf_mem_fini();
         return NULL;
 
     errorENOMEM:
         sf_errno = ENOMEM;
-        //sf_mem_fini();
         return NULL;
 }
 
@@ -98,20 +94,132 @@ void *allocate_payload(sf_header *header, size_t size){
     char *allocBlockHeader = set_header_bits(header, true, needsPadding, blockSize);
     char *payloadPtr = (char *)allocBlockHeader + 8;
     char *footerPtr = ((char *) allocBlockHeader + paddedSize +8);
-    set_footer_bits((sf_footer *)footerPtr, true, needsPadding, blockSize, size+16);
+    set_footer_bits((sf_footer *)footerPtr, true, needsPadding, blockSize, size);
     return (void *) payloadPtr;
 }
 
 
 void *sf_realloc(void *ptr, size_t size) {
+    if(!isValidPtr(ptr)){
+        goto error;
+    }
+    if(size == 0){
+        sf_free(ptr);
+        return NULL;
+    }
+    sf_header *givenHeader = (sf_header *)(ptr - 8);
+    size_t givenBlockSize = givenHeader->block_size << 4;
+    if(size > givenBlockSize)
+        return sf_realloc_larger(ptr, size);
+    if(size < givenBlockSize)
+        return sf_realloc_smaller(ptr, size);
 	return NULL;
+
+    error:
+        abort();
+}
+
+void *sf_realloc_larger(void *ptr, size_t size){
+    void *newBlock = sf_malloc(size);
+    newBlock = memcpy(newBlock, ptr, size);
+    sf_free(ptr);
+    return newBlock;
+}
+
+void *sf_realloc_smaller(void *ptr, size_t size){
+    sf_header *givenHeader = (sf_header *)(ptr - 8);
+    size_t givenBlockSize = givenHeader->block_size << 4;
+    sf_footer *givenFooter = (sf_footer *)((char *)givenHeader+givenBlockSize-8);
+
+    size_t newPldSize = get_padded_size(size);
+    size_t newBlockSize = newPldSize + 16;
+    if(splittingCreatesSplinter(givenHeader, size)){
+        givenFooter->requested_size = size;
+        return ptr;
+    } else {
+        givenHeader->block_size = (newBlockSize>>4);
+        sf_footer *newFooter = (sf_footer *)((char *)givenHeader+newBlockSize-8);
+        set_footer_bits(newFooter, true, givenHeader->padded, newBlockSize, size);
+        sf_header *newHeader = (sf_header *)((char *)newFooter+8);
+        size_t newFreeBlockSize = givenBlockSize - newBlockSize;
+        newHeader = set_header_bits(newHeader, false, false, newFreeBlockSize);
+        set_footer_bits(givenFooter, false, false, newFreeBlockSize, 0);
+
+        sf_header *nextNextHeader = (sf_header *)((char *) newHeader+newFreeBlockSize);
+        appendToList(newHeader);
+        sf_snapshot();
+        if (canCoalesceBack(nextNextHeader)){
+            coalesceBack(nextNextHeader);
+        }
+    }
+    return ((char *)givenHeader+8);
 }
 
 void sf_free(void *ptr) {
+
+    if(ptr == NULL)
+        goto error;
+    bool nextIsFree = true;
+
+    do {
+        sf_header *givenHeader = (sf_header *)(ptr - 8);
+        size_t givenBlockSize = givenHeader->block_size << 4;
+        sf_footer *givenFooter = (sf_footer *)(ptr+givenBlockSize-16);
+
+        if(!isValidPtr(ptr))
+            goto error;
+
+        sf_header *nextHeader = (sf_header *)((char*)givenFooter + 8);
+        size_t nextBlockSize = nextHeader->block_size<<4;
+        sf_footer *nextFooter = (sf_footer *)((char *)nextHeader+nextBlockSize-8);
+
+        sf_footer *targetFooter = givenFooter;
+        size_t targetSize = givenBlockSize;
+        if(nextHeader->allocated == 0){
+            targetFooter = nextFooter;
+            targetSize = givenBlockSize + nextBlockSize;
+            removeFromList((sf_free_header *)nextHeader);
+        }
+
+        givenHeader = set_header_bits(givenHeader, false, false, targetSize);
+        set_footer_bits(targetFooter, false, false, targetSize, 0);
+        appendToList(givenHeader);
+
+        sf_header *nextNextHeader = (sf_header *)((char *)givenHeader + targetSize);
+        if(nextNextHeader->allocated != 0) nextIsFree = false;
+        sf_snapshot();
+    } while(nextIsFree);
+
 	return;
+
+    error:
+        abort();
 }
 
-void coalesce(sf_header *currentHeader){
+bool isValidPtr(void *ptr){
+    sf_header *givenHeader = (sf_header *)(ptr - 8);
+    size_t givenBlockSize = givenHeader->block_size << 4;
+    sf_footer *givenFooter = (sf_footer *)(ptr+givenBlockSize-16);
+    size_t givenBlockReqSize = givenFooter->requested_size;
+
+    if(givenHeader->allocated == 0) return false;
+
+    if((void *)givenHeader-get_heap_start() < 0 || get_heap_end()-(void *) givenFooter < 0)
+        return false;
+
+    if(givenBlockReqSize+16!=givenBlockSize && givenHeader->padded ==0)
+        return false;
+
+    if(givenBlockReqSize+16==givenBlockSize && givenHeader->padded ==1)
+        return false;
+    if(givenHeader->allocated != givenFooter->allocated \
+        || givenHeader->padded !=givenFooter->padded    \
+        || givenHeader->block_size != givenFooter->block_size)
+        return false;
+    return true;
+}
+
+void coalesceBack(sf_header *currentHeader){
     sf_footer *prevFooter = (sf_footer *)((char *)currentHeader-8);
 
     size_t currentBlockSize = currentHeader->block_size << 4;
@@ -120,9 +228,10 @@ void coalesce(sf_header *currentHeader){
     sf_footer *currentFooter = (sf_footer *)((char *)currentHeader+currentBlockSize-8);
     sf_header *prevHeader = (sf_header *)((char *)prevFooter-prevBlockSize+8);
     removeFromList((sf_free_header *)prevHeader);
+    removeFromList((sf_free_header *)currentHeader);
+    sf_snapshot();
     size_t newBlockSize = prevBlockSize + currentBlockSize;
     prevHeader->block_size = newBlockSize >> 4;
     currentFooter->block_size = newBlockSize >> 4;
     appendToList(prevHeader);
 }
-

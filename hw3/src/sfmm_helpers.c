@@ -156,7 +156,7 @@ void appendToList(sf_header *node){
     *listHead = cand;
 }
 
-bool canCoalesce(sf_header *header) {
+bool canCoalesceBack(sf_header *header) {
     sf_footer *prevFooter = (sf_footer *)((char *)header-8);
     if(prevFooter->allocated == 1)
         return false;
@@ -189,4 +189,12 @@ int getListIndex(size_t size){
     else {
         return 3;
     }
+}
+
+bool splittingCreatesSplinter(void *ptr, size_t size){
+    sf_header *givenHeader = (sf_header *)ptr;
+    size_t givenBlockSize = givenHeader->block_size << 4;
+    size_t newBlockSize = get_padded_size(size)+16;
+    if(givenBlockSize-newBlockSize<32) return true;
+    return false;
 }
