@@ -5,20 +5,17 @@ int main(int argc, char const *argv[]) {
 
 
     sf_mem_init();
+    sf_malloc(sizeof(long));
+    void *x = sf_malloc(sizeof(double) * 11);
+    void *y = sf_malloc(sizeof(char));
+    sf_malloc(sizeof(int));
     sf_snapshot();
-    double *ptr = sf_malloc(40);
-    sf_blockprint((char *)ptr-8);
+    sf_free(y);
     sf_snapshot();
-
-    /*double *ptr4 = sf_malloc(512);
-    sf_blockprint((char *)ptr4-8);*/
-    //*ptr = 320320320e-320;
-
-    //printf("%f\n", *ptr);
-    //sf_snapshot();
-    //sf_varprint(ptr);
-    //sf_free(ptr);
-
+    printf("3\n");
+    sf_free(x);
+    sf_snapshot();
+    printf("4\n");
     sf_mem_fini();
 
     return EXIT_SUCCESS;
