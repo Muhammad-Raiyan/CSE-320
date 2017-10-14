@@ -48,9 +48,9 @@ void *sf_malloc(size_t size) {
         void * pgStart= sf_sbrk();
         count_page++;
         sf_header *temp_free_header = pageToMemoryBlock(pgStart);
-        if(!canCoalesce(temp_free_header)) appendToList(temp_free_header);
+        if(!canCoalesceBack(temp_free_header)) appendToList(temp_free_header);
         else {
-            coalesce(temp_free_header);
+            coalesceBack(temp_free_header);
         }
         tempTargetListHead = get_seg_free_list_head(seg_free_list, size);
     }
@@ -129,15 +129,30 @@ void *sf_realloc_larger(void *ptr, size_t size){
 void *sf_realloc_smaller(void *ptr, size_t size){
     sf_header *givenHeader = (sf_header *)(ptr - 8);
     size_t givenBlockSize = givenHeader->block_size << 4;
-    sf_footer *givenFooter = (sf_footer *)(ptr+givenBlockSize-16);
+    sf_footer *givenFooter = (sf_footer *)((char *)givenHeader+givenBlockSize-8);
 
+    size_t newPldSize = get_padded_size(size);
+    size_t newBlockSize = newPldSize + 16;
     if(splittingCreatesSplinter(givenHeader, size)){
         givenFooter->requested_size = size;
+        return ptr;
     } else {
+        givenHeader->block_size = (newBlockSize>>4);
+        sf_footer *newFooter = (sf_footer *)((char *)givenHeader+newBlockSize-8);
+        set_footer_bits(newFooter, true, givenHeader->padded, newBlockSize, size);
+        sf_header *newHeader = (sf_header *)((char *)newFooter+8);
+        size_t newFreeBlockSize = givenBlockSize - newBlockSize;
+        newHeader = set_header_bits(newHeader, false, false, newFreeBlockSize);
+        set_footer_bits(givenFooter, false, false, newFreeBlockSize, 0);
 
+        sf_header *nextNextHeader = (sf_header *)((char *) newHeader+newFreeBlockSize);
+        appendToList(newHeader);
+        sf_snapshot();
+        if (canCoalesceBack(nextNextHeader)){
+            coalesceBack(nextNextHeader);
+        }
     }
-    ptr = (void *) givenHeader-8;
-    return ptr;
+    return ((char *)givenHeader+8);
 }
 
 void sf_free(void *ptr) {
@@ -204,7 +219,7 @@ bool isValidPtr(void *ptr){
     return true;
 }
 
-void coalesce(sf_header *currentHeader){
+void coalesceBack(sf_header *currentHeader){
     sf_footer *prevFooter = (sf_footer *)((char *)currentHeader-8);
 
     size_t currentBlockSize = currentHeader->block_size << 4;
@@ -213,6 +228,8 @@ void coalesce(sf_header *currentHeader){
     sf_footer *currentFooter = (sf_footer *)((char *)currentHeader+currentBlockSize-8);
     sf_header *prevHeader = (sf_header *)((char *)prevFooter-prevBlockSize+8);
     removeFromList((sf_free_header *)prevHeader);
+    removeFromList((sf_free_header *)currentHeader);
+    sf_snapshot();
     size_t newBlockSize = prevBlockSize + currentBlockSize;
     prevHeader->block_size = newBlockSize >> 4;
     currentFooter->block_size = newBlockSize >> 4;

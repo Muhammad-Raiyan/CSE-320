@@ -24,8 +24,8 @@ void removeFromList(sf_free_header *target);
 int getListIndex(size_t size);
 void appendToList(sf_header *node);
 
-bool canCoalesce(sf_header *header);
-void coalesce(sf_header *header);
+bool canCoalesceBack(sf_header *header);
+void coalesceBack(sf_header *header);
 
 bool isValidPtr(void *ptr);
 
