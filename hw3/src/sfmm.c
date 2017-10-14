@@ -100,7 +100,44 @@ void *allocate_payload(sf_header *header, size_t size){
 
 
 void *sf_realloc(void *ptr, size_t size) {
+    if(!isValidPtr(ptr)){
+        goto error;
+    }
+    if(size == 0){
+        sf_free(ptr);
+        return NULL;
+    }
+    sf_header *givenHeader = (sf_header *)(ptr - 8);
+    size_t givenBlockSize = givenHeader->block_size << 4;
+    if(size > givenBlockSize)
+        return sf_realloc_larger(ptr, size);
+    if(size < givenBlockSize)
+        return sf_realloc_smaller(ptr, size);
 	return NULL;
+
+    error:
+        abort();
+}
+
+void *sf_realloc_larger(void *ptr, size_t size){
+    void *newBlock = sf_malloc(size);
+    newBlock = memcpy(newBlock, ptr, size);
+    sf_free(ptr);
+    return newBlock;
+}
+
+void *sf_realloc_smaller(void *ptr, size_t size){
+    sf_header *givenHeader = (sf_header *)(ptr - 8);
+    size_t givenBlockSize = givenHeader->block_size << 4;
+    sf_footer *givenFooter = (sf_footer *)(ptr+givenBlockSize-16);
+
+    if(splittingCreatesSplinter(givenHeader, size)){
+        givenFooter->requested_size = size;
+    } else {
+
+    }
+    ptr = (void *) givenHeader-8;
+    return ptr;
 }
 
 void sf_free(void *ptr) {
@@ -114,7 +151,7 @@ void sf_free(void *ptr) {
         size_t givenBlockSize = givenHeader->block_size << 4;
         sf_footer *givenFooter = (sf_footer *)(ptr+givenBlockSize-16);
 
-        if(!isValidFreePtr(ptr))
+        if(!isValidPtr(ptr))
             goto error;
 
         sf_header *nextHeader = (sf_header *)((char*)givenFooter + 8);
@@ -132,6 +169,7 @@ void sf_free(void *ptr) {
         givenHeader = set_header_bits(givenHeader, false, false, targetSize);
         set_footer_bits(targetFooter, false, false, targetSize, 0);
         appendToList(givenHeader);
+
         sf_header *nextNextHeader = (sf_header *)((char *)givenHeader + targetSize);
         if(nextNextHeader->allocated != 0) nextIsFree = false;
         sf_snapshot();
@@ -143,7 +181,7 @@ void sf_free(void *ptr) {
         abort();
 }
 
-bool isValidFreePtr(void *ptr){
+bool isValidPtr(void *ptr){
     sf_header *givenHeader = (sf_header *)(ptr - 8);
     size_t givenBlockSize = givenHeader->block_size << 4;
     sf_footer *givenFooter = (sf_footer *)(ptr+givenBlockSize-16);
@@ -151,7 +189,7 @@ bool isValidFreePtr(void *ptr){
 
     if(givenHeader->allocated == 0) return false;
 
-    if((void *)givenHeader-get_heap_start() < 0 || get_heap_end()-(void *) givenHeader < 0)
+    if((void *)givenHeader-get_heap_start() < 0 || get_heap_end()-(void *) givenFooter < 0)
         return false;
 
     if(givenBlockReqSize+16!=givenBlockSize && givenHeader->padded ==0)
@@ -180,4 +218,3 @@ void coalesce(sf_header *currentHeader){
     currentFooter->block_size = newBlockSize >> 4;
     appendToList(prevHeader);
 }
-

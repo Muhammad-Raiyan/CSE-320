@@ -1,6 +1,6 @@
 
 #include "sfmm.h"
-
+#include <string.h>
 #define BIT(n) ( 1<<(n) )
 #define SET_BIT(val, bitIndex) val |= (1 << bitIndex)
 #define CLEAR_BIT(val, bitIndex) val &= ~(1 << bitIndex)
@@ -27,4 +27,8 @@ void appendToList(sf_header *node);
 bool canCoalesce(sf_header *header);
 void coalesce(sf_header *header);
 
-bool isValidFreePtr(void *ptr);
+bool isValidPtr(void *ptr);
+
+void *sf_realloc_larger(void *ptr, size_t size);
+void *sf_realloc_smaller(void *ptr, size_t size);
+bool splittingCreatesSplinter(void *ptr, size_t);

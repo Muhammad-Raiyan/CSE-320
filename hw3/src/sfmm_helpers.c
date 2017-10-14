@@ -190,3 +190,11 @@ int getListIndex(size_t size){
         return 3;
     }
 }
+
+bool splittingCreatesSplinter(void *ptr, size_t size){
+    sf_header *givenHeader = (sf_header *)(ptr - 8);
+    size_t givenBlockSize = givenHeader->block_size << 4;
+
+    if(givenBlockSize-get_padded_size(size)<32) return true;
+    return false;
+}
