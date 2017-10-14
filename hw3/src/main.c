@@ -6,7 +6,7 @@ int main(int argc, char const *argv[]) {
 
     sf_mem_init();
     sf_snapshot();
-    double *ptr = sf_malloc(4049);
+    double *ptr = sf_malloc(40);
     sf_blockprint((char *)ptr-8);
     sf_snapshot();
 

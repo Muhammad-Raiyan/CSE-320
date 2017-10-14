@@ -26,3 +26,5 @@ void appendToList(sf_header *node);
 
 bool canCoalesce(sf_header *header);
 void coalesce(sf_header *header);
+
+bool isValidFreePtr(void *ptr);
