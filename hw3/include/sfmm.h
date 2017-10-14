@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <debug.h>
 
 #define HEADER_UNUSED_BITS 32
 #define BLOCK_SIZE_BITS 28
@@ -35,7 +36,7 @@
 #define LIST_3_MAX 2048
 #define LIST_4_MIN 2049
 #define LIST_4_MAX -1
-#define PAGE_SZ 4096
+#define PAGE_SZ 4096 //BYTES
 
 #define FREE_LIST_COUNT 4
 
