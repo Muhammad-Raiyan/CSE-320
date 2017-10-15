@@ -2,7 +2,7 @@
 #include <errno.h>
 #include <signal.h>
 #include "sfmm.h"
-
+#include "sfmm_helpers.h"
 
 int find_list_index_from_size(int sz) {
 	if (sz >= LIST_1_MIN && sz <= LIST_1_MAX) return 0;
@@ -203,3 +203,67 @@ Test(sf_memsuite_student, Malloc_an_Integer_check_sf_errno, .init = sf_mem_init,
 	x = sf_malloc(PAGE_SZ);
 	cr_assert(sf_errno == 0, "sf_errno is not 0 for 1 PAGE_SZ!");
 }
+
+/*
+** This test checks bool isValidPtr(void *) from the sfmm_helpers.c file which I added
+** If the sfmm_helpers.h is not included, it will throw compiler error
+*/
+Test(sf_memsuite_student, Free_check_sf_sigabrt, .init = sf_mem_init, .fini = sf_mem_fini){
+
+	cr_assert(isValidPtr(NULL)==false, "NULL is a valid pointer");
+
+	void *pt1 = sf_malloc(4000);
+	cr_assert(isValidPtr(pt1+8)==false, "Wrong header is correct");
+
+	void *pt2 = sf_malloc(sizeof(int));
+	sf_header *header = (sf_header *)(pt2-8);
+	size_t pt2Size = header->block_size << 4;
+	sf_footer *pt2_foot = (pt2 + pt2Size - 16);
+	pt2_foot->allocated = 0;
+	cr_assert(isValidPtr(pt2)==false, "Wrong footer is valid");
+
+}
+
+
+Test(sf_memsuite_student, check_split_splinter, .init = sf_mem_init, .fini = sf_mem_fini){
+	void *ptr = sf_malloc(48);
+
+	cr_assert(splittingCreatesSplinter((char *)ptr-8, 8)==false, "splitting 48 does create splinter");
+
+	void *ptr2 = sf_malloc(112);
+
+	cr_assert(splittingCreatesSplinter((char *)ptr2-8, 96)==true, "splitting 48 does create splinter");
+
+}
+
+Test(sf_memsuite_student, check_empty_list, .init = sf_mem_init, .fini = sf_mem_fini){
+	sf_malloc(4049);
+
+	cr_assert_null(seg_free_list[0].head);
+	cr_assert_null(seg_free_list[1].head);
+	cr_assert_null(seg_free_list[2].head);
+	cr_assert_null(seg_free_list[3].head);
+}
+
+Test(sf_memsuite_student, check_header_footer_bits, .init = sf_mem_init, .fini = sf_mem_fini){
+	void *x = sf_malloc(48);
+
+	sf_header *hed = (sf_header *)((char *) x -8);
+	sf_blockprint(hed);
+	cr_assert(hed->allocated == 1, "Header->alloc is not 1");
+	cr_assert(hed->padded == 0, "Header->padded is not 0");
+	cr_assert(hed->block_size << 4 == 64, "Blocksize is not 64");
+
+	sf_footer *foot = (sf_footer *)((char *) hed + (hed->block_size << 4) - 8);
+	cr_assert(foot->allocated == 1, "Header->alloc is not 1");
+	cr_assert(foot->padded == 0, "Header->padded is not 0");
+	cr_assert(foot->block_size << 4 == 64, "Blocksize is not 64");
+	cr_assert(foot->requested_size  == 0x30, "Requested size is not 48");
+}
+
+
+
+
+
+
+

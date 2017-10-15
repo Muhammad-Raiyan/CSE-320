@@ -32,3 +32,5 @@ bool isValidPtr(void *ptr);
 void *sf_realloc_larger(void *ptr, size_t size);
 void *sf_realloc_smaller(void *ptr, size_t size);
 bool splittingCreatesSplinter(void *ptr, size_t);
+
+int needsPadding(size_t blockSize, size_t requestedSize);
