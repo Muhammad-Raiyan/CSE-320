@@ -198,3 +198,9 @@ bool splittingCreatesSplinter(void *ptr, size_t size){
     if(givenBlockSize-newBlockSize<32) return true;
     return false;
 }
+
+int needsPadding(size_t blockSize, size_t requestedSize){
+
+    if(requestedSize+16 != blockSize) return 1;
+    else return 0;
+}
