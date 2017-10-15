@@ -31,7 +31,7 @@ void set_footer_bits(sf_footer *footer,  bool alloc, bool padded, size_t blk_siz
 
 sf_header *pageToMemoryBlock(void *memStart){
     char *heapStart = (char *)memStart;
-    char *heapEnd = heapStart + PAGE_SZ - 8;
+    char *heapEnd = heapStart + PAGE_SZ - SF_FOOTER_SIZE/8;
 
     /*debug("\nHeap Start %p\n", heapStart);
     debug("Head end %p\n", heapEnd);
@@ -100,7 +100,7 @@ sf_header *getFreeBlockHeader(sf_free_header *list, size_t size){
 sf_footer *getBlockFooter(sf_header *header){
     size_t blockSize = header->block_size;
 
-    sf_footer *footer = (sf_footer *)((char *)header + (blockSize<<4) -8);
+    sf_footer *footer = (sf_footer *)((char *)header + (blockSize<<4) -SF_FOOTER_SIZE/8);
     return footer;
 }
 
@@ -108,9 +108,9 @@ sf_header *getNewFreeHeader(sf_header *allocatedHeader, size_t oldSize, size_t r
     size_t paddedSize = get_padded_size(reqSize);
     size_t freeBlockSize = oldSize - (paddedSize+16);
 
-    sf_footer *allocatedFooterPtr = (sf_footer *)((char *) allocatedHeader + paddedSize + 8);
-    char *freeHeaderPtr = (char*)allocatedFooterPtr+8;
-    sf_footer *oldFreeFooter =(sf_footer *)(freeHeaderPtr + freeBlockSize - 8);
+    sf_footer *allocatedFooterPtr = (sf_footer *)((char *) allocatedHeader + paddedSize + SF_FOOTER_SIZE/8);
+    char *freeHeaderPtr = (char*)allocatedFooterPtr+SF_FOOTER_SIZE/8;
+    sf_footer *oldFreeFooter =(sf_footer *)(freeHeaderPtr + freeBlockSize - SF_FOOTER_SIZE/8);
 
 
     sf_header *newFreeHeader = set_header_bits((sf_header *)freeHeaderPtr, false, false, freeBlockSize);
@@ -157,7 +157,7 @@ void appendToList(sf_header *node){
 }
 
 bool canCoalesceBack(sf_header *header) {
-    sf_footer *prevFooter = (sf_footer *)((char *)header-8);
+    sf_footer *prevFooter = (sf_footer *)((char *)header-SF_FOOTER_SIZE/8);
     if(prevFooter->allocated == 1)
         return false;
     else
