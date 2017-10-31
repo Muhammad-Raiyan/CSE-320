@@ -4,9 +4,12 @@
 #include <string.h>
 #include <stdbool.h>
 #include <readline/readline.h>
-
+#include <util.h>
 #include "sfish.h"
 #include "debug.h"
+
+int n_argc = 0;
+char **n_argv = NULL;
 
 int main(int argc, char *argv[], char* envp[]) {
     char* input;
@@ -23,8 +26,8 @@ int main(int argc, char *argv[], char* envp[]) {
     }
 
     do {
-
-        input = readline("> ");
+        char *prompt = getPrompt();
+        input = readline(prompt);
 
         write(1, "\e[s", strlen("\e[s"));
         write(1, "\e[20;10H", strlen("\e[20;10H"));
@@ -35,8 +38,11 @@ int main(int argc, char *argv[], char* envp[]) {
         if(input == NULL) {
             continue;
         }
-
-
+        char *temp_input = malloc(strlen(input));
+        strcpy(temp_input, input);
+        n_argv = setArguments(input, &n_argc);
+        debug("Argc %d", n_argc);
+        //printf("Return : %s\n", );
         // Currently nothing is implemented
         printf(EXEC_NOT_FOUND, input);
 
@@ -45,6 +51,10 @@ int main(int argc, char *argv[], char* envp[]) {
 
         // Readline mallocs the space for input. You must free it.
         rl_free(input);
+        free(n_argv);
+        free(prompt);
+        free(temp_input);
+        free(input);
 
     } while(!exited);
 
