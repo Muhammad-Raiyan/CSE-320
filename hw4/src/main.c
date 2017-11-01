@@ -15,7 +15,7 @@ char **n_argv = NULL;
 
 int main(int argc, char *argv[], char* envp[]) {
     char* input;
-    bool exited = false;
+    //bool exited = false;
 
     if(!isatty(STDIN_FILENO)) {
         // If your shell is reading from a piped file
@@ -52,14 +52,14 @@ int main(int argc, char *argv[], char* envp[]) {
             printf(EXEC_NOT_FOUND, input);
 
         // You should change exit to a "builtin" for your hw.
-        exited = strcmp(input, "exit") == 0;
+        //exited = strcmp(input, "exit") == 0;
         debug("after call_builtin %s", input);
         // Readline mallocs the space for input. You must free it.
         rl_free(input);
         free(n_argv);
         free(prompt);
 
-    } while(!exited);
+    } while(true);
 
     debug("%s", "user entered 'exit'");
 

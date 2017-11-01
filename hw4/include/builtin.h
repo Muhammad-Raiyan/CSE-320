@@ -2,6 +2,7 @@
 #define BUILTIN
 
 #include "util.h"
+#include "wrappers.h"
 
 const char *builtinList[4];
 const int builtinCount;
@@ -11,7 +12,7 @@ bool is_builtin(const char *arg);
 void call_builtin(int argc, char *argv[]);
 int get_builtin_code(const char *arg);
 void help();
-void my_exit();
+void Exit();
 void cd(const char *path);
 void pwd();
 

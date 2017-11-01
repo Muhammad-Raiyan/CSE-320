@@ -18,7 +18,7 @@ void call_builtin(int argc, char *argv[]){
     int code = get_builtin_code(argv[0]);
     switch(code){
         case 0: help(); break;
-        case 1: my_exit(); break;
+        case 1: Exit(); break;
         case 2: cd(argv[1]); break;
         case 3: pwd(); break;
     }
@@ -38,8 +38,8 @@ void help(){
     }
 }
 
-void my_exit(){
-    exit(3);
+void Exit(){
+    exit(0);
 }
 
 void cd(const char *path){
@@ -53,11 +53,9 @@ void cd(const char *path){
         strcpy((char *)temp_path, OLDPWD);
     }
 
-    int ret = chdir(temp_path);
+    int ret = Chdir(temp_path);
 
-    if(ret != 0 ){
-        perror("cd: %s: No such file or directory");
-    } else {
+    if(ret == 0){
         strcpy(OLDPWD, pwd_before_cd);
     }
 }
