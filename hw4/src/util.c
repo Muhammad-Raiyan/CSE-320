@@ -2,6 +2,7 @@
 #include "util.h"
 
 char** set_arguments(char *input, int *argc){
+
     char *token = NULL, *temp = input;
     char **argv = malloc(strlen(input));
     int i = 0;

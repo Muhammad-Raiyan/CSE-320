@@ -52,12 +52,10 @@ int main(int argc, char *argv[], char* envp[]) {
             printf(EXEC_NOT_FOUND, input);
 
         // You should change exit to a "builtin" for your hw.
-        //pwd();
         exited = strcmp(input, "exit") == 0;
         debug("after call_builtin %s", input);
         // Readline mallocs the space for input. You must free it.
         rl_free(input);
-        printf("HERE\n");
         free(n_argv);
         free(prompt);
 
