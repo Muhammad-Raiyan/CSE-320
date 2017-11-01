@@ -9,6 +9,7 @@
 #include <readline/readline.h>
 #include "debug.h"
 
-char** setArguments(char *input, int *argc);
-char* getPrompt();
+char** set_arguments(char *input, int *argc);
+char* get_prompt();
+
 #endif

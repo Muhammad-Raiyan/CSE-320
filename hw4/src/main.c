@@ -5,8 +5,10 @@
 #include <stdbool.h>
 #include <readline/readline.h>
 #include <util.h>
+#include "builtin.h"
 #include "sfish.h"
 #include "debug.h"
+
 
 int n_argc = 0;
 char **n_argv = NULL;
@@ -26,7 +28,7 @@ int main(int argc, char *argv[], char* envp[]) {
     }
 
     do {
-        char *prompt = getPrompt();
+        char *prompt = get_prompt();
         input = readline(prompt);
 
         write(1, "\e[s", strlen("\e[s"));
@@ -38,23 +40,26 @@ int main(int argc, char *argv[], char* envp[]) {
         if(input == NULL) {
             continue;
         }
-        char *temp_input = malloc(strlen(input));
-        strcpy(temp_input, input);
-        n_argv = setArguments(input, &n_argc);
-        debug("Argc %d", n_argc);
-        //printf("Return : %s\n", );
-        // Currently nothing is implemented
-        printf(EXEC_NOT_FOUND, input);
+        char *input_cpy = malloc(strlen(input));
+        strcpy(input_cpy, input);
+        n_argv = set_arguments(input_cpy, &n_argc);
+        debug("after %s", input);
+
+        if(get_builtin_code(n_argv[0])!=-1){
+            call_builtin(n_argc, n_argv);
+        }
+        else
+            printf(EXEC_NOT_FOUND, input);
 
         // You should change exit to a "builtin" for your hw.
+        //pwd();
         exited = strcmp(input, "exit") == 0;
-
+        debug("after call_builtin %s", input);
         // Readline mallocs the space for input. You must free it.
         rl_free(input);
+        printf("HERE\n");
         free(n_argv);
         free(prompt);
-        free(temp_input);
-        free(input);
 
     } while(!exited);
 

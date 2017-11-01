@@ -1,8 +1,7 @@
 
 #include "util.h"
 
-char** setArguments(char *input, int *argc){
-    /* TODO: HAVE NOT FREED mrgv */
+char** set_arguments(char *input, int *argc){
     char *token = NULL, *temp = input;
     char **argv = malloc(strlen(input));
     int i = 0;
@@ -14,10 +13,12 @@ char** setArguments(char *input, int *argc){
     return argv;
 }
 
-char* getPrompt(){
+char* get_prompt(){
     const char *netid = " :: mrislam >> ";
     char *home = getenv("HOME");
-    char *cwd = getenv("PWD");
+    char cwd[256];
+    getcwd(cwd, sizeof(cwd));
+
     char *cwd_start = calloc(strlen(cwd)+strlen(netid), sizeof(char));
     if(strncmp(cwd, home, strlen(home)) == 0){
         strcpy(cwd_start, "~");
@@ -25,8 +26,8 @@ char* getPrompt(){
     }
     else strcpy(cwd_start, cwd);
 
-    debug("Home: %s\n", home);
-    debug("CWD: %s\n", cwd);
+    debug("Home: %s", home);
+    debug("CWD: %s", cwd);
     strcat(cwd_start, netid);
     return cwd_start;
 }
