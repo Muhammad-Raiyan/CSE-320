@@ -1,4 +1,3 @@
-
 #include "util.h"
 
 char** set_arguments(char *input, int *argc){
@@ -6,10 +5,13 @@ char** set_arguments(char *input, int *argc){
     char *token = NULL, *temp = input;
     char **argv = malloc(strlen(input));
     int i = 0;
-    while((token = strtok_r(temp, " ", &temp))){
-        argv[i] = token;
-        i++;
+    while((token = strtok_r(temp, " \r\t\n", &temp))){
+        if(strcmp(token, "\r")!=0 && strcmp(token, "\t")!=0 && strcmp(token, "\n")!=0){
+            argv[i] = token;
+            i++;
+        }
     }
+    argv[i] = '\0';
     *argc = i;
     return argv;
 }

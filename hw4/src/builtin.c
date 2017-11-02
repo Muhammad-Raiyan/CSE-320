@@ -1,4 +1,3 @@
-
 #include "builtin.h"
 
 const char *builtinList[4] = {"help", "exit", "cd", "pwd"};

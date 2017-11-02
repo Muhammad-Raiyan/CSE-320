@@ -1,8 +1,7 @@
 #ifndef BUILTIN
 #define BUILTIN
 
-#include "util.h"
-#include "wrappers.h"
+#include "sfish.h"
 
 const char *builtinList[4];
 const int builtinCount;
