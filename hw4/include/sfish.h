@@ -8,7 +8,7 @@
 #define STRFTIME_RPRMT "%a %b %e, %I:%M%p"
 #define BUILTIN_ERROR  "sfish builtin error: "
 #define SYNTAX_ERROR   "sfish syntax error: %s"
-#define EXEC_ERROR     "sfish exec error: "
+#define EXEC_ERROR     "sfish exec error: %s"
 
 #include <unistd.h>
 #include <stdio.h>

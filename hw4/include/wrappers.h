@@ -3,7 +3,7 @@
 
 #include "sfish.h"
 
-void unix_error(char *msg);
+void unix_error(char *errType, char *msg);
 
 int Chdir(const char* path);
 pid_t Fork();
