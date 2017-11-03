@@ -53,7 +53,7 @@ cmd* parse_input(char* input){
 int has_left_redirect(int argc, char** argv){
 
     for(int i=0; i<argc; i++){
-        if(strcmp(argv[i], "<")==0){
+        if(argv[i] != NULL && strcmp(argv[i], "<")==0){
             return i;
         }
     }
