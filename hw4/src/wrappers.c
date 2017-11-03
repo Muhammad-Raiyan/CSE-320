@@ -134,3 +134,12 @@ int Dup2(int oldFd, int newFd)
         unix_error(EXEC_ERROR, "Dup2 error");
     return rc;
 }
+
+int Open(const char *pathname, int flags)
+{
+    int rc;
+
+    if ((rc = open(pathname, flags))  < 0)
+        unix_error(SYNTAX_ERROR, "Open error");
+    return rc;
+}

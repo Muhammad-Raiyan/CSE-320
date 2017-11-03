@@ -20,6 +20,9 @@ void call_builtin(int argc, char *argv[]){
         case 1: Exit(); break;
         case 2: cd(argv[1]); break;
         case 3: pwd(); break;
+        default:
+            perror(BUILTIN_ERROR);
+            break;
     }
 }
 

@@ -2,11 +2,11 @@
 
 char** set_arguments(char *input, int *argc){
 
-    char *token = NULL, *temp = input;
+    char *token = NULL, *temp = malloc(strlen(input));
     char **argv = calloc(strlen(input), sizeof(input));
-
+    strcpy(temp, input);
     int i = 0;
-    while((token = strtok_r(temp, " \r\t\n", &temp))){
+    while((token = strtok_r(temp, DELIM, &temp))){
             argv[i] = token;
             i++;
     }
@@ -63,7 +63,7 @@ int has_left_redirect(int argc, char** argv){
 int has_right_redirect(int argc, char** argv){
 
     for(int i=0; i<argc; i++){
-        if(strcmp(argv[i], ">")==0){
+        if(argv[i] != NULL && strcmp(argv[i], ">")==0){
             return i;
         }
     }

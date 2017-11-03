@@ -19,4 +19,6 @@ ssize_t sio_puts(char s[]);
 
 void Execvp(const char *filename, char *const argv[]);
 int Dup2(int oldFd, int newFd);
+
+int Open(const char *pathname, int flags);
 #endif
