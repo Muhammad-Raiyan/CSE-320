@@ -8,11 +8,11 @@ const int builtinCount;
 char OLDPWD[256];
 
 bool is_builtin(const char *arg);
-void call_builtin(int argc, char *argv[]);
+void call_builtin(cmd* c);
 int get_builtin_code(const char *arg);
 void help();
 void Exit();
 void cd(const char *path);
-void pwd();
+void pwd(cmd* c);
 
 #endif

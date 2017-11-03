@@ -14,7 +14,8 @@ bool start_exec(cmd* c){
     set_cmd_IO(c);
     //BUILTIN HANDLE
     if(get_builtin_code(c->argv[0])!=-1){
-        call_builtin(c->argc, c->argv);
+        call_builtin(c);
+
         return true;
     }
     // EXECUTABLES HANDLE
@@ -28,6 +29,7 @@ bool start_exec(cmd* c){
     if(Fork()==0){
         Sigprocmask(SIG_SETMASK, &prev, NULL);
         //char **argv = c->argv;
+
         run(c);
     }
 
@@ -60,7 +62,7 @@ void set_cmd_IO(cmd* c){
         memset(fileName, '\0', MAXARG);
         strcpy(fileName, c->argv[pos+1]);
         c->argv[pos] = NULL;
-        int fid = Open(fileName, O_WRONLY | O_CREAT);
+        int fid = open(fileName, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
         c->out = fid;
         /*Dup2(c->out, STDOUT_FILENO);
         close(fid);*/
@@ -74,7 +76,5 @@ void run(cmd* c){
     Dup2(c->out, STDOUT_FILENO);
     if(c->in!=STDIN_FILENO)close(c->in);
     if(c->out!=STDOUT_FILENO)close(c->out);
-
-
     Execvp(c->argv[0], c->argv);
 }

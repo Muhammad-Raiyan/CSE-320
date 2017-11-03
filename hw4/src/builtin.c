@@ -13,13 +13,13 @@ bool is_builtin(const char* arg){
     return false;
 }
 
-void call_builtin(int argc, char *argv[]){
-    int code = get_builtin_code(argv[0]);
+void call_builtin(cmd* c){
+    int code = get_builtin_code(c->argv[0]);
     switch(code){
         case 0: help(); break;
         case 1: Exit(); break;
-        case 2: cd(argv[1]); break;
-        case 3: pwd(); break;
+        case 2: cd(c->argv[1]); break;
+        case 3: pwd(c); break;
         default:
             perror(BUILTIN_ERROR);
             break;
@@ -41,7 +41,7 @@ void help(){
 }
 
 void Exit(){
-    exit(0);
+    _exit(0);
 }
 
 void cd(const char *path){
@@ -62,14 +62,16 @@ void cd(const char *path){
     }
 }
 
-void pwd(){
+void pwd(cmd* c){
     char cwd[256];
 
     if(getcwd(cwd, sizeof(cwd))==NULL){
         perror("Error getcwd");
     }
     else {
-        printf("%s\n", cwd);
+        strcat(cwd, "\n");
+        write(c->out, cwd, strlen(cwd));
+        //printf("%s\n", cwd);
     }
 
 }
