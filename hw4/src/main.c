@@ -66,7 +66,7 @@ int main(int argc, char *argv[], char* envp[]) {
             call_builtin(n_argc, n_argv);
         }
         else
-            running = execute(c);
+            running = start_exec(c);
 
         rl_free(input);
         free(n_argv);

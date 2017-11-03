@@ -5,7 +5,7 @@
 
 void sigchld_handler(int s);
 void sigint_handler(int s);
-bool execute(cmd* c);
+bool start_exec(cmd* c);
 
-cmd* set_cmd_IO(cmd* c);
+void set_cmd_IO(cmd* c);
 #endif

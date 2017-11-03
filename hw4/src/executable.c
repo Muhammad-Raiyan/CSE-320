@@ -10,7 +10,8 @@ void sigint_handler(int s){
 
 }
 
-bool execute(cmd* c){
+bool start_exec(cmd* c){
+
 
     sigset_t mask, prev;
     Signal(SIGCHLD, sigchld_handler);
@@ -20,10 +21,9 @@ bool execute(cmd* c){
 
     Sigprocmask(SIG_BLOCK, &mask, &prev);   // BLOCK SIGCHLD
     if(Fork()==0){
-        c = set_cmd_IO(c);
-        char **argv = c->argv;
-
         Sigprocmask(SIG_SETMASK, &prev, NULL);
+        set_cmd_IO(c);
+        char **argv = c->argv;
         Execvp(argv[0], argv);
     }
 
@@ -37,7 +37,7 @@ bool execute(cmd* c){
     return true;
 }
 
-cmd* set_cmd_IO(cmd* c){
+void set_cmd_IO(cmd* c){
     int pos;
     if((pos=has_right_redirect(c->argc, c->argv))!=-1){
         char fileName[MAXARG];
@@ -45,7 +45,8 @@ cmd* set_cmd_IO(cmd* c){
         strcpy(fileName, c->argv[pos+1]);
         c->argv[pos] = NULL;
         int fid = open(fileName, O_WRONLY | O_CREAT);
-        Dup2(fid, c->out);
+        c->out = fid;
+        Dup2(c->out, STDOUT_FILENO);
         close(fid);
     }
 
@@ -55,8 +56,8 @@ cmd* set_cmd_IO(cmd* c){
         strcpy(fileName, c->argv[pos+1]);
         c->argv[pos] = NULL;
         int fid = open(fileName, O_RDONLY);
-        Dup2(fid, c->in);
+        c->in = fid;
+        Dup2(c->in, STDIN_FILENO);
         close(fid);
     }
-    return c;
 }
