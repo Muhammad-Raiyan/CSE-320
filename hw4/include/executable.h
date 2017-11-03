@@ -5,6 +5,6 @@
 
 void sigchld_handler(int s);
 void sigint_handler(int s);
-void execute(char **argv);
+bool execute(char **argv);
 
 #endif

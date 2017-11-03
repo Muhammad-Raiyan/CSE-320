@@ -21,8 +21,22 @@
 #include <sys/types.h>
 #include <errno.h>
 
+#define MAXARG 256
+#define DELIM " \n\t\a\r"
+
 typedef void handler_t(int);
 volatile sig_atomic_t pid;
+
+typedef struct cmd {
+    struct cmd* next;
+
+    char* original;
+    char* argv[MAXARG];
+
+    int argc;
+    int in;
+    int out;
+} cmd;
 
 #include "wrappers.h"
 #include "util.h"

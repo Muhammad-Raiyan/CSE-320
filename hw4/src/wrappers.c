@@ -126,3 +126,11 @@ void Execvp(const char *filename, char *const argv[])
     }
 }
 
+int Dup2(int oldFd, int newFd)
+{
+    int rc;
+
+    if ((rc = dup2(oldFd, newFd)) < 0)
+        unix_error(EXEC_ERROR, "Dup2 error");
+    return rc;
+}
