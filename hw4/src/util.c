@@ -42,14 +42,31 @@ cmd* parse_input(char* input){
     c->in =STDIN_FILENO;
     c->out = STDOUT_FILENO;
 
-    /*char** t_argv =set_arguments(input, &(c->argc));
-    *(c->argv) = t_argv;*/
-    //char** t_argv = c->argv;
     char **t_argv = set_arguments(input, &(c->argc));
 
     for(int i=0; i<c->argc; i++){
-
         c->argv[i] = t_argv[i];
     }
     return c;
 }
+
+int has_left_redirect(int argc, char** argv){
+
+    for(int i=0; i<argc; i++){
+        if(strcmp(argv[i], "<")==0){
+            return i;
+        }
+    }
+    return -1;
+}
+
+int has_right_redirect(int argc, char** argv){
+
+    for(int i=0; i<argc; i++){
+        if(strcmp(argv[i], ">")==0){
+            return i;
+        }
+    }
+    return -1;
+}
+

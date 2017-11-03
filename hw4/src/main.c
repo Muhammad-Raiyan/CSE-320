@@ -41,8 +41,8 @@ int main(int argc, char *argv[], char* envp[]) {
         if(input == NULL || strcmp(input, "")==0) {
             continue;
         }
-        char *input_cpy = malloc(strlen(input));
-        strcpy(input_cpy, input);
+        char *input_cpy = calloc(strlen(input), sizeof(char));
+        memcpy((void *)input_cpy, (void *)input, strlen(input));
         /*n_argv = set_arguments(input_cpy, &n_argc);
         //debug("after %s", input);
 
@@ -56,15 +56,17 @@ int main(int argc, char *argv[], char* envp[]) {
         //exited = strcmp(input, "exit") == 0;
         //debug("after call_builtin %s", input);
         // Readline mallocs the space for input. You must free it.
+        n_argv = set_arguments(input_cpy, &n_argc);
+        memcpy((void *)input_cpy, (void *)input, strlen(input));
 
         cmd* c = calloc(MAXARG, sizeof(cmd));
         c = parse_input(input_cpy);
 
-        if(get_builtin_code(c->argv[0])!=-1){
-            call_builtin(c->argc, c->argv);
+        if(get_builtin_code(n_argv[0])!=-1){
+            call_builtin(n_argc, n_argv);
         }
         else
-            running = execute(c->argv);
+            running = execute(c);
 
         rl_free(input);
         free(n_argv);

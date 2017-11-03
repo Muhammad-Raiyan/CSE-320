@@ -20,6 +20,8 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 #define MAXARG 256
 #define DELIM " \n\t\a\r"

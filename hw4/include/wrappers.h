@@ -18,5 +18,5 @@ int Sigsuspend(const sigset_t *set);
 ssize_t sio_puts(char s[]);
 
 void Execvp(const char *filename, char *const argv[]);
-
+int Dup2(int oldFd, int newFd);
 #endif
