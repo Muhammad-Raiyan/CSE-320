@@ -14,7 +14,7 @@ int n_argc = 0;
 char **n_argv = NULL;
 
 int main(int argc, char *argv[], char* envp[]) {
-    char* input;
+    char* input = NULL;
     //bool exited = false;
 
     if(!isatty(STDIN_FILENO)) {
@@ -28,7 +28,7 @@ int main(int argc, char *argv[], char* envp[]) {
     }
 
     bool running = true;
-    while(running) {
+    do {
         //char *prompt = get_prompt();
         //input = readline(prompt);
 
@@ -66,14 +66,14 @@ int main(int argc, char *argv[], char* envp[]) {
         n_argv = set_arguments(input, &n_argc);
         cmd* c = calloc(MAXARG, sizeof(cmd));
         c = parse_input(input);
-        set_cmd_IO(c);
+
         running = start_exec(c);
 
         rl_free(input);
         free(n_argv);
         free(prompt);
 
-    }
+    } while(running);
 
     debug("%s", "user entered 'exit'");
 

@@ -11,7 +11,7 @@ void sigint_handler(int s){
 }
 
 bool start_exec(cmd* c){
-
+    set_cmd_IO(c);
     //BUILTIN HANDLE
     if(get_builtin_code(c->argv[0])!=-1){
         call_builtin(c->argc, c->argv);
@@ -51,8 +51,8 @@ void set_cmd_IO(cmd* c){
         c->argv[pos] = NULL;
         int fid = Open(fileName, O_RDONLY);
         c->in = fid;
-        Dup2(c->in, STDIN_FILENO);
-        close(fid);
+        /*Dup2(c->in, STDIN_FILENO);
+        close(fid);*/
     }
 
     if((pos=has_right_redirect(c->argc, c->argv))!=-1){
@@ -62,18 +62,18 @@ void set_cmd_IO(cmd* c){
         c->argv[pos] = NULL;
         int fid = Open(fileName, O_WRONLY | O_CREAT);
         c->out = fid;
-        Dup2(c->out, STDOUT_FILENO);
-        close(fid);
+        /*Dup2(c->out, STDOUT_FILENO);
+        close(fid);*/
     }
 
 }
 
 void run(cmd* c){
 
-    /*Dup2(c->in, STDIN_FILENO);
+    Dup2(c->in, STDIN_FILENO);
     Dup2(c->out, STDOUT_FILENO);
     if(c->in!=STDIN_FILENO)close(c->in);
-    if(c->out!=STDOUT_FILENO)close(c->out);*/
+    if(c->out!=STDOUT_FILENO)close(c->out);
 
 
     Execvp(c->argv[0], c->argv);
