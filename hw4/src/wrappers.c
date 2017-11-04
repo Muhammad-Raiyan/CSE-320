@@ -143,3 +143,10 @@ int Open(const char *pathname, int flags)
         unix_error(SYNTAX_ERROR, "Open error");
     return rc;
 }
+
+void Pipe( int* arr ){
+    if((pipe(arr)) < 0){
+        perror("Couldn't Pipe");
+        exit(0);
+    }
+}

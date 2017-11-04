@@ -41,6 +41,7 @@ void help(){
 }
 
 void Exit(){
+    //kill(pid, SIGTERM);
     _exit(0);
 }
 

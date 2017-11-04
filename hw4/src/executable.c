@@ -11,7 +11,7 @@ void sigint_handler(int s){
 }
 
 bool start_exec(cmd* c){
-    set_cmd_IO(c);
+    set_pipe_IO(c);
     //BUILTIN HANDLE
     if(get_builtin_code(c->argv[0])!=-1){
         call_builtin(c);
@@ -43,6 +43,18 @@ bool start_exec(cmd* c){
     return true;
 }
 
+void set_pipe_IO(cmd* head){
+    cmd *current = head;
+    if(current->next == NULL)
+        set_cmd_IO(current);
+    else {
+        do {
+            set_cmd_IO(current);
+        } while((current=current->next)!= NULL);
+    }
+
+}
+
 void set_cmd_IO(cmd* c){
     int pos;
 
@@ -67,7 +79,6 @@ void set_cmd_IO(cmd* c){
         /*Dup2(c->out, STDOUT_FILENO);
         close(fid);*/
     }
-
 }
 
 void run(cmd* c){
