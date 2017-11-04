@@ -73,34 +73,20 @@ void initPipe(cmd* head){
     int j = 0;
     while(current){
         //if not last cmd
-        pid = fork();
+        pid = Fork();
 
         if(pid == 0){
             if(current->next){
-                if(dup2(fd[j + 1], 1) < 0){
-                    perror("dup2");
-                    exit(EXIT_FAILURE);
-                }
+                Dup2(fd[j + 1], 1);
             }
             if(j!= 0){
-                if(dup2(fd[j-2], 0) < 0){
-                    perror(" dup2");///j-2 0 j+1 1
-                    exit(EXIT_FAILURE);
-                }
+                Dup2(fd[j-2], 0);
             }
             for(i = 0; i < 2*numPipes; i++){
                 close(fd[i]);
             }
-
-            if( execvp(current->argv[0], current->argv) < 0 ){
-                perror(EXEC_ERROR);
-                exit(EXIT_FAILURE);
-            }
-        } else if(pid < 0){
-            perror("error");
-            exit(EXIT_FAILURE);
+            Execvp(current->argv[0], current->argv);
         }
-
         current = current->next;
         j+= 2;
     }

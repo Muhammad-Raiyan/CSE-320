@@ -16,7 +16,7 @@ bool is_builtin(const char* arg){
 void call_builtin(cmd* c){
     int code = get_builtin_code(c->argv[0]);
     switch(code){
-        case 0: help(); break;
+        case 0: help(c); break;
         case 1: Exit(); break;
         case 2: cd(c->argv[1]); break;
         case 3: pwd(c); break;
@@ -34,9 +34,11 @@ int get_builtin_code(const char *arg){
     return -1;
 }
 
-void help(){
+void help(cmd* c){
     for(int i=0; i<builtinCount; i++){
-        printf("%s\n", builtinList[i]);
+        char *s = calloc(strlen(builtinList[i]), sizeof(char));
+        sprintf(s, JOBS_LIST_ITEM, i, builtinList[i]);
+        write(c->out, s, strlen(s));
     }
 }
 
