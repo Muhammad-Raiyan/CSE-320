@@ -28,6 +28,7 @@
 
 typedef void handler_t(int);
 volatile sig_atomic_t pid;
+int pLength;
 
 typedef struct cmd {
     struct cmd* next;

@@ -39,15 +39,6 @@ cmd* parse_input(char* input){
     c = initCommands(input);
 
     parse_cmd(c);
-    //DEFAULT I/O
-    /*c->in =STDIN_FILENO;
-    c->out = STDOUT_FILENO;
-
-    char **t_argv = set_arguments(input, &(c->argc));
-
-    for(int i=0; i<c->argc; i++){
-        c->argv[i] = t_argv[i];
-    }*/
     return c;
 }
 
@@ -61,6 +52,7 @@ cmd* initCommands(char* input){
 
     while((token = strtok_r(temp, "|", &temp))){
         addCmd(c, token);
+        pLength++;
     }
     c = c->next;
     return c;

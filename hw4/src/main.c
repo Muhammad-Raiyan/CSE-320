@@ -65,8 +65,9 @@ int main(int argc, char *argv[], char* envp[]) {
         }
         n_argv = set_arguments(input, &n_argc);
         cmd* c = calloc(MAXARG, sizeof(cmd));
+        pLength = 0;
         c = parse_input(input);
-
+        //debug("PLength: %d", pLength);
         running = start_exec(c);
 
         rl_free(input);
