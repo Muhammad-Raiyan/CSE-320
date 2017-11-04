@@ -7,7 +7,12 @@ void sigchld_handler(int s){
 }
 
 void sigint_handler(int s){
+    printf("Pressed ctrl-c?\n");
+    keepRunning = 0;
+}
 
+void sigstp_handler(int s){
+    kill(pid, SIGTSTP);
 }
 
 bool start_exec(cmd* c){
@@ -20,7 +25,7 @@ bool start_exec(cmd* c){
     }
 
     if(pLength > 1){
-        initPipe(c);
+        runPipe(c);
         return true;
     }
 
@@ -28,14 +33,13 @@ bool start_exec(cmd* c){
     sigset_t mask, prev;
     Signal(SIGCHLD, sigchld_handler);
     Signal(SIGINT, sigint_handler);
+    Signal(SIGTSTP, sigstp_handler);
     Sigemptyset(&mask);
     Sigaddset(&mask, SIGCHLD);
 
     Sigprocmask(SIG_BLOCK, &mask, &prev);   // BLOCK SIGCHLD
     if(Fork()==0){
         Sigprocmask(SIG_SETMASK, &prev, NULL);
-        //char **argv = c->argv;
-
         run(c);
     }
 
@@ -49,7 +53,7 @@ bool start_exec(cmd* c){
     return true;
 }
 
-void initPipe(cmd* head){
+void runPipe(cmd* head){
     cmd *current = head;
     int i = 0;
     int status;
@@ -60,16 +64,6 @@ void initPipe(cmd* head){
         Pipe(fd+i*2);
     }
 
-    /*int* temp_pipes = fd;
-    current->out = temp_pipes[1];
-    while(current->next!=NULL){
-        current = current->next;
-        current->in = temp_pipes[0];
-
-        if(current->next == NULL) break;
-        temp_pipes+=2;
-        current->out = temp_pipes[1];
-    }*/
     int j = 0;
     while(current){
         //if not last cmd

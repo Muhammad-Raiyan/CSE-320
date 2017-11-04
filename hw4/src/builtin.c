@@ -74,7 +74,6 @@ void pwd(cmd* c){
     else {
         strcat(cwd, "\n");
         write(c->out, cwd, strlen(cwd));
-        //printf("%s\n", cwd);
     }
 
 }

@@ -10,7 +10,6 @@ char** set_arguments(char *input, int *argc){
             argv[i] = token;
             i++;
     }
-    //argv[i] = '\0';
     *argc = i;
     return argv;
 }
@@ -28,8 +27,6 @@ char* get_prompt(){
     }
     else strcpy(cwd_start, cwd);
 
-    //debug("Home: %s", home);
-    //debug("CWD: %s", cwd);
     strcat(cwd_start, netid);
     return cwd_start;
 }
@@ -45,7 +42,6 @@ cmd* parse_input(char* input){
 cmd* initCommands(char* input){
     char *token = NULL, *temp = malloc(strlen(input));
     strcpy(temp, input);
-    //char **argv = calloc(strlen(input), sizeof(input));
     cmd* c = NULL;
     c = calloc(1, sizeof(cmd));
     c->next = NULL;

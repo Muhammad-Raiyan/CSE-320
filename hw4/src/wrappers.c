@@ -6,11 +6,6 @@ ssize_t sio_puts(char s[]) /* Put string */
 }
 
 void unix_error(char *errType, char *msg) {
-    //char *errMsg = malloc(256 + strlen(msg));
-    /*strcpy(errMsg, msg);
-    strcat(errMsg, strerror(errno));
-    strcat(errMsg, "\n");
-    sio_puts(errMsg);*/
     char errorType[256];
     sprintf(errorType, errType, msg);
     fprintf(stderr, "%s: %s\n", errorType, strerror(errno));
@@ -32,7 +27,6 @@ int Chdir(const char* path){
 }
 
 pid_t Fork(){
-    //pid_t pid;
 
     if ((pid = fork()) < 0){
         char errorMsg[256];

@@ -29,7 +29,7 @@
 typedef void handler_t(int);
 volatile sig_atomic_t pid;
 int pLength;
-
+static volatile int keepRunning;
 typedef struct cmd {
     struct cmd* next;
 
