@@ -6,7 +6,6 @@ char **n_argv = NULL;
 
 int main(int argc, char *argv[], char* envp[]) {
     char* input = NULL;
-    keepRunning = 1;
     if(!isatty(STDIN_FILENO)) {
         // If your shell is reading from a piped file
         // Don't have readline write anything to that file.
@@ -17,7 +16,7 @@ int main(int argc, char *argv[], char* envp[]) {
         }
     }
 
-    bool running = true;
+    int running = 1;
     do {
         char *prompt = get_prompt();
         input = readline(prompt);
@@ -30,7 +29,7 @@ int main(int argc, char *argv[], char* envp[]) {
         c = parse_input(input);
         //debug("PLength: %d", pLength);
         running = start_exec(c);
-
+        if(errno != 0) continue;
         rl_free(input);
         free(n_argv);
         free(prompt);

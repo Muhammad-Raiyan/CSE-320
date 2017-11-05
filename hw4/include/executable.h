@@ -6,7 +6,7 @@
 void sigchld_handler(int s);
 void sigint_handler(int s);
 
-bool start_exec(cmd* c);
+int start_exec(cmd* c);
 void run(cmd* c);
 
 void runPipe(cmd* c);

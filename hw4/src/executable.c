@@ -7,35 +7,34 @@ void sigchld_handler(int s){
 }
 
 void sigint_handler(int s){
-    printf("Pressed ctrl-c?\n");
-    keepRunning = 0;
+
 }
 
-void sigstp_handler(int s){
-    kill(pid, SIGTSTP);
-}
 
-bool start_exec(cmd* c){
+int start_exec(cmd* c){
+
+    sigset_t mask, prev;
+    Signal(SIGCHLD, sigchld_handler);
+    Signal(SIGINT, sigint_handler);
+    Sigemptyset(&mask);
+    Sigaddset(&mask, SIGCHLD);
+
     set_cmd_IO(c);
+    if(errno < 0){
+        return -1;
+    }
     //BUILTIN HANDLE
     if(get_builtin_code(c->argv[0])!=-1){
         call_builtin(c);
-
-        return true;
+        return 1;
     }
 
     if(pLength > 1){
         runPipe(c);
-        return true;
     }
 
     // EXECUTABLES HANDLE
-    sigset_t mask, prev;
-    Signal(SIGCHLD, sigchld_handler);
-    Signal(SIGINT, sigint_handler);
-    Signal(SIGTSTP, sigstp_handler);
-    Sigemptyset(&mask);
-    Sigaddset(&mask, SIGCHLD);
+
 
     Sigprocmask(SIG_BLOCK, &mask, &prev);   // BLOCK SIGCHLD
     if(Fork()==0){
@@ -50,7 +49,7 @@ bool start_exec(cmd* c){
     }
 
     Sigprocmask(SIG_SETMASK, &prev, NULL);
-    return true;
+    return 1;
 }
 
 void runPipe(cmd* head){

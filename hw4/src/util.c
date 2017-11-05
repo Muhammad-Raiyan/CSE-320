@@ -19,7 +19,7 @@ char* get_prompt(){
     char *home = getenv("HOME");
     char cwd[256];
     getcwd(cwd, sizeof(cwd));
-
+    //debug("%s", home);
     char *cwd_start = calloc(strlen(cwd)+strlen(netid), sizeof(char));
     if(strncmp(cwd, home, strlen(home)) == 0){
         strcpy(cwd_start, "~");

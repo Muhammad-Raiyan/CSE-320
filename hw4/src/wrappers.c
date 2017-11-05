@@ -113,10 +113,12 @@ int Sigsuspend(const sigset_t *set)
 }
 
 void Execvp(const char *filename, char *const argv[])
-{
-    if (execvp(filename, argv) < 0){
-        unix_error(EXEC_ERROR, "Execve error");
-        _exit(0);
+{   int rd;
+    if ((rd = execvp(filename, argv)) < 0){
+        unix_error(EXEC_NOT_FOUND, (char *)filename);
+        //debug("%d", rd);
+        //else unix_error(EXEC_ERROR, (char *)filename);
+        kill(getpid(), SIGKILL);
     }
 }
 
@@ -133,14 +135,14 @@ int Open(const char *pathname, int flags)
 {
     int rc;
 
-    if ((rc = open(pathname, flags))  < 0)
-        unix_error(SYNTAX_ERROR, "Open error");
+    if ((rc = open(pathname, flags))  < 0){
+        unix_error(EXEC_ERROR, "Open error");
+    }
     return rc;
 }
 
 void Pipe( int* arr ){
     if((pipe(arr)) < 0){
         perror("Couldn't Pipe");
-        exit(0);
     }
 }

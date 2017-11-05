@@ -44,20 +44,26 @@ void help(cmd* c){
 
 void Exit(){
     //kill(pid, SIGTERM);
-    _exit(0);
+    exit(0);
 }
 
 void cd(const char *path){
     char pwd_before_cd[256];
     char *temp_path = malloc(256);
-    strcpy(temp_path, path);
 
+    if(path!=NULL){
+        strcpy(temp_path, path);
+    }
+    else {
+        strcpy((char *)temp_path, getenv("HOME"));
+        //debug("evg: %s", getenv("HOME"));
+    }
     getcwd(pwd_before_cd, sizeof(pwd_before_cd));
 
     if(strcmp(temp_path, "-")==0){
         strcpy((char *)temp_path, OLDPWD);
     }
-
+    //debug("%s", temp_path);
     int ret = Chdir(temp_path);
 
     if(ret == 0){
@@ -78,3 +84,6 @@ void pwd(cmd* c){
 
 }
 
+void set_color(char* chr){
+
+}

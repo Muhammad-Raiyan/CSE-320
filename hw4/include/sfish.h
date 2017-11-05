@@ -3,7 +3,7 @@
 #define _GNU_SOURCE
 
 /* Format Strings */
-#define EXEC_NOT_FOUND "sfish: %s: command not found\n"
+#define EXEC_NOT_FOUND "sfish: %s: command not found"
 #define JOBS_LIST_ITEM "[%d] %s\n"
 #define STRFTIME_RPRMT "%a %b %e, %I:%M%p"
 #define BUILTIN_ERROR  "sfish builtin error: "

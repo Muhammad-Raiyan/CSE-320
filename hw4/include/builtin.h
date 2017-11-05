@@ -14,5 +14,6 @@ void help(cmd* c);
 void Exit();
 void cd(const char *path);
 void pwd(cmd* c);
+void set_color(char* chr);
 
 #endif
