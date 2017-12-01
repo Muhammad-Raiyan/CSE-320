@@ -52,27 +52,73 @@ bool put(hashmap_t *self, map_key_t key, map_val_t val, bool force) {
     }
 
     int probe_range = self->capacity;
-    int i = 0;
+    int last_tombstone = 0;
 
-    while( cur_map_node->tombstone==true &&
-        ((cur_map_node->key).key_base != NULL &&
-        !is_same_key(cur_map_node->key, key)))
-    {
-        i++;
-        index++;
-        if(i >= probe_range){
-            pthread_mutex_unlock(&self->write_lock);
-            return false;
+    for(int i = index; i < probe_range; i++){
+
+        if((self->nodes[i].key).key_base  == NULL){
+            if(!last_tombstone){
+                cur_map_node = (first_map_node+i);
+                *cur_map_node = MAP_NODE(key, val, false);
+                ++(self->size);
+                pthread_mutex_unlock(&self->write_lock);
+                return true;
+            } else{
+                cur_map_node = (first_map_node+last_tombstone);
+                *cur_map_node = MAP_NODE(key, val, false);
+                self->nodes[i].tombstone = false;
+                ++(self->size);
+                pthread_mutex_unlock(&self->write_lock);
+                return true;
+            }
+
         }
-        if(index >= probe_range) index = 0;
-        cur_map_node = first_map_node+index;
-        debug("PUT");
+        else if(self->nodes[i].tombstone && !last_tombstone){
+            last_tombstone = index;
+        }
+        else{
+            int compare = memcmp((self->nodes[i].key).key_base, key.key_base, key.key_len);
+            if((self->nodes[i].key).key_len == key.key_len && compare == 0){
+                cur_map_node = (first_map_node+index);
+                *cur_map_node = MAP_NODE(key, val, false);
+                pthread_mutex_unlock(&self->write_lock);
+                return true;
+            }
+        }
     }
-    //debug("I %d Index %d", i, index);
-    self->destroy_function(cur_map_node->key, cur_map_node->val);
-    *cur_map_node = MAP_NODE(key, val, false);
-    ++(self->size);
 
+    for(int i = 0; i < index; i ++){
+
+            if((self->nodes[i].key).key_base  == NULL){
+                if(!last_tombstone){
+                    cur_map_node = (first_map_node+i);
+                    *cur_map_node = MAP_NODE(key, val, false);
+                    ++(self->size);
+                    pthread_mutex_unlock(&self->write_lock);
+                    return true;
+                } else{
+                    cur_map_node = (first_map_node+i);
+                    *cur_map_node = MAP_NODE(key, val, false);
+                    ++(self->size);
+                    pthread_mutex_unlock(&self->write_lock);
+                    return true;
+                }
+
+            }
+            else if(self->nodes[i].tombstone && !last_tombstone){
+                last_tombstone = index;
+            }
+            else{
+                // Check if the element has an identical key
+                int compare = memcmp((self->nodes[i].key).key_base, key.key_base, key.key_len);
+                if((self->nodes[i].key).key_len == key.key_len && compare == 0 && !self->nodes[i].tombstone){
+                    cur_map_node = (first_map_node+index);
+                    *cur_map_node = MAP_NODE(key, val, false);
+                    pthread_mutex_unlock(&self->write_lock);
+                    return true;
+                }
+            }
+        }
     pthread_mutex_unlock(&self->write_lock);
     return true;
 }
@@ -99,35 +145,32 @@ map_val_t get(hashmap_t *self, map_key_t key) {
             pthread_mutex_unlock(&self->write_lock);
         }
         pthread_mutex_unlock(&self->fields_lock);
-        debug("return 1");
         return MAP_VAL(NULL, 0);
     }
 
-    int index = get_index(self, key);
     map_node_t *first_map_node = self->nodes;
-    map_node_t *cur_map_node = (first_map_node+index);
-    int probe_range = self->capacity;
-    int i = 0;
+    map_node_t *cur_map_node = (first_map_node);
 
-    while(is_same_key(cur_map_node->key, key) && cur_map_node->tombstone==false){
-        i++;
-        index++;
-        if(i >= probe_range){
-            pthread_mutex_lock(&self->fields_lock);
-            self->num_readers--;
-            if(self->num_readers == 0){
-                pthread_mutex_unlock(&self->write_lock);
-            }
-            pthread_mutex_unlock(&self->fields_lock);
-            debug("return 2");
-            return MAP_VAL(NULL, 0);
+    bool found = false;
+    for(int i=0; i<self->capacity; i++){
+        cur_map_node = first_map_node+i;
+        if(is_same_key(cur_map_node->key, key) && cur_map_node->tombstone==false){
+            debug("found i %d", i);
+            found = true;
+            break;
         }
-
-        if(index >= probe_range) index = 0;
-        cur_map_node = first_map_node+index;
-
     }
 
+    if(!found) {
+        pthread_mutex_lock(&self->fields_lock);
+        self->num_readers--;
+        if(self->num_readers == 0){
+            pthread_mutex_unlock(&self->write_lock);
+        }
+        pthread_mutex_unlock(&self->fields_lock);
+
+        return MAP_VAL(NULL, 0);
+    }
     //debug("I %d index %d range %d", i, index, probe_range);
 
     pthread_mutex_lock(&self->fields_lock);
@@ -194,7 +237,7 @@ bool clear_map(hashmap_t *self) {
     }
 
     pthread_mutex_unlock(&self->write_lock);
-	return true;
+    return true;
 }
 
 bool invalidate_map(hashmap_t *self) {
@@ -221,7 +264,7 @@ bool invalidate_map(hashmap_t *self) {
 }
 
 bool is_same_key(map_key_t key1, map_key_t key2){
-    if( key1.key_len == key2.key_len && memcmp(key1.key_base, key2.key_base, key1.key_len) == 1){
+    if( key1.key_len == key2.key_len && memcmp(key1.key_base, key2.key_base, key1.key_len) == 0){
         return true;
     }
     return false;

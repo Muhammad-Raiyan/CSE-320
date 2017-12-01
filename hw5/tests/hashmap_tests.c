@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <debug.h>
 #include "hashmap.h"
-#define NUM_THREADS 2500
+#define NUM_THREADS 5
 #define MAP_KEY(kbase, klen) (map_key_t) {.key_base = kbase, .key_len = klen}
 #define MAP_VAL(vbase, vlen) (map_val_t) {.val_base = vbase, .val_len = vlen}
 
@@ -218,7 +218,8 @@ Test(map_suite, 05_put_get, .timeout = 2, .init = map_init, .fini = map_fini) {
 
         int val_of_val;
         val_of_val = *(int *)(val.val_base);
-        cr_assert_eq(val_of_val, index*2, "PUT GET i %d Expected %d and got %d.", index*2,val_of_val);
+        printf("%d %d %d\n", index, index*2, val_of_val);
+        cr_assert_eq(val_of_val, index*2, "PUT GET i %d Expected %d and got %d.", index, index*2, val_of_val);
     }
 
     int num_items = global_map->size;
