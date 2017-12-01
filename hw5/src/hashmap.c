@@ -54,9 +54,10 @@ bool put(hashmap_t *self, map_key_t key, map_val_t val, bool force) {
     int probe_range = self->capacity;
     int i = 0;
 
-
-    while((cur_map_node->key).key_base != NULL &&
-        (!is_same_key(cur_map_node->key, key) || cur_map_node->tombstone==false)){
+    while( cur_map_node->tombstone==true &&
+        ((cur_map_node->key).key_base != NULL &&
+        !is_same_key(cur_map_node->key, key)))
+    {
         i++;
         index++;
         if(i >= probe_range){
@@ -66,7 +67,7 @@ bool put(hashmap_t *self, map_key_t key, map_val_t val, bool force) {
         if(index >= probe_range) index = 0;
         cur_map_node = first_map_node+index;
     }
-
+    //debug("I %d Index %d", i, index);
     self->destroy_function(cur_map_node->key, cur_map_node->val);
     *cur_map_node = MAP_NODE(key, val, false);
     ++(self->size);
@@ -89,7 +90,7 @@ map_val_t get(hashmap_t *self, map_key_t key) {
     }
     pthread_mutex_unlock(&self->fields_lock);
 
-    if(self->invalid == true){
+    if(self->invalid == true || self->size == 0){
         errno = EINVAL;
         pthread_mutex_lock(&self->fields_lock);
         self->num_readers--;
@@ -123,7 +124,7 @@ map_val_t get(hashmap_t *self, map_key_t key) {
         cur_map_node = first_map_node+index;
 
     }
-    debug("I %d index %d range %d", i, index, probe_range);
+    //debug("I %d index %d range %d", i, index, probe_range);
 
     pthread_mutex_lock(&self->fields_lock);
     self->num_readers--;
