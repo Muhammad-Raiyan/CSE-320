@@ -21,11 +21,16 @@ bool invalidate_queue(queue_t *self, item_destructor_f destroy_function) {
     //P(&self->items);                // MOT SURE AT ALL
     pthread_mutex_lock(&self->lock);
 
+    if(self->invalid == true){
+        errno = EINVAL;
+        return false;
+    }
     queue_node_t *temp = self->front;
     while(temp!=NULL){
+
         queue_node_t *next_temp = temp->next;
-        destroy_function(temp);
-        //free(temp);
+        destroy_function(temp->item);
+        free(temp);
         temp = next_temp;
     }
     self->invalid = true;
@@ -43,7 +48,10 @@ bool enqueue(queue_t *self, void *item) {
     }
 
     pthread_mutex_lock(&self->lock);
-
+    if(self->invalid == true){
+        errno = EINVAL;
+        return false;
+    }
     queue_node_t *node = calloc(1, sizeof(*node));
     node->item = item;
     node->next = NULL;
@@ -72,6 +80,11 @@ void *dequeue(queue_t *self) {
 
     P(&self->items);
     pthread_mutex_lock(&self->lock);
+
+    if(self->invalid == true){
+        errno = EINVAL;
+        return NULL;
+    }
 
     temp = self->front;
     temp_item = temp->item;
