@@ -20,6 +20,8 @@ void evict_request(int connfd, request_header_t *request_header, response_header
 void clear_request(int connfd, request_header_t *request_header, response_header_t *response_header);
 void invalid_request(int connfd, request_header_t *request_header, response_header_t *response_header);
 
+//ssize_t Write(int fd, const void *bu, size_t count);
+
 struct sockaddr_storage clientaddr;
 queue_t *global_queue;
 hashmap_t *global_map;
@@ -31,7 +33,7 @@ void map_free_function(map_key_t key, map_val_t val) {
 }
 
 int main(int argc, char *argv[]) {
-
+    signal(SIGPIPE, SIG_IGN);
     if (argc != 4) {
         fprintf (stderr, "usage: %s <port>\n", argv[0]);
         exit(0);
@@ -39,7 +41,7 @@ int main(int argc, char *argv[]) {
     int NUM_WORKERS = atoi(argv[1]);
     char* PORT_NUMBER = (argv[2]);
     uint32_t MAX_ENTRIES = atoi(argv[3]);
-    int listenfd, connfd;
+    int listenfd, *connfd = Calloc(1, sizeof(int));
     socklen_t clientlen;
 
     pthread_t *tid = calloc(NUM_WORKERS, sizeof(pthread_t));
@@ -54,40 +56,39 @@ int main(int argc, char *argv[]) {
 
     while (1) {
         clientlen = sizeof(struct sockaddr_storage);
-        connfd = Accept(listenfd, (SA*) &clientaddr, &clientlen);
-        enqueue(global_queue, &connfd);
+        *connfd = Accept(listenfd, (SA*) &clientaddr, &clientlen);
+        debug("HERE");
+        enqueue(global_queue, connfd);
     }
+
     exit(0);
 }
 
 void *thread(void *vargp){
     Pthread_detach(pthread_self());
+    int *connfd;
     while (1) {
-        int connfd = *(int *)dequeue(global_queue); /* Remove connfd from buffer */
+        connfd = (int *)dequeue(global_queue); /* Remove connfd from buffer */
 
-        request_header_t *req_header = calloc(1, sizeof(request_header_t));
+        request_header_t *req_header = Calloc(1, sizeof(request_header_t));
         response_header_t *response_header = Calloc(1, sizeof(response_header_t));
 
-        read(connfd, req_header, sizeof(request_header_t));
+        read(*connfd, req_header, sizeof(request_header_t));
         debug("KEY SIZE %u", req_header->key_size);
-        /*if(!is_valid_header(req_header->key_size, req_header->value_size)){
-            response_header->response_code = BAD_REQUEST;
-            response_header->value_size = 0;
-            write(connfd, response_header, sizeof(response_header_t));
-            continue;
-        }*/
 
         switch(req_header->request_code){
-            case PUT: put_request(connfd, req_header, response_header); break;
-            case GET: get_request(connfd, req_header, response_header); break;
-            case EVICT: evict_request(connfd, req_header, response_header); break;
-            case CLEAR: clear_request(connfd, req_header, response_header); break;
-            default: invalid_request(connfd, req_header, response_header); break;
+            case PUT: put_request(*connfd, req_header, response_header); break;
+            case GET: get_request(*connfd, req_header, response_header); break;
+            case EVICT: evict_request(*connfd, req_header, response_header); break;
+            case CLEAR: clear_request(*connfd, req_header, response_header); break;
+            //default: invalid_request(*connfd, req_header, response_header); break;
         }
-        free(req_header);
-        free(response_header);
-        Close (connfd);
+        //free(req_header);
+        //free(response_header);
+        debug("Fd %d", *connfd);
+
     }
+    Close (*connfd);
 }
 
 void put_request(int connfd, request_header_t *request_header, response_header_t *response_header){
@@ -140,6 +141,7 @@ void get_request(int connfd, request_header_t *request_header, response_header_t
     }
     write(connfd, response_header, sizeof(response_header_t));
     write(connfd, map_val.val_base, map_val.val_len);
+
 }
 
 void evict_request(int connfd, request_header_t *request_header, response_header_t *response_header){
@@ -193,3 +195,21 @@ bool is_valid_value(size_t val_size){
     }
     return true;
 }
+
+// ssize_t Write(int fd, const void *buf, size_t count){
+//     size_t nleft = count;
+//     ssize_t nwritten;
+//     const char *bufp = buf;
+
+//     while (nleft > 0) {
+//         if ((nwritten = write(fd, bufp, nleft)) <= 0) {
+//             if (errno == EINTR)  Interrupted by sig handler return
+//                 nwritten = 0;   /* and call write() again */
+//             else
+//                 return -1; /* errno set by write() */
+//         }
+//         nleft -= nwritten;
+//         bufp += nwritten;
+//     }
+//     return count;
+// }

@@ -66,6 +66,7 @@ bool put(hashmap_t *self, map_key_t key, map_val_t val, bool force) {
         }
         if(index >= probe_range) index = 0;
         cur_map_node = first_map_node+index;
+        debug("PUT");
     }
     //debug("I %d Index %d", i, index);
     self->destroy_function(cur_map_node->key, cur_map_node->val);
@@ -98,6 +99,7 @@ map_val_t get(hashmap_t *self, map_key_t key) {
             pthread_mutex_unlock(&self->write_lock);
         }
         pthread_mutex_unlock(&self->fields_lock);
+        debug("return 1");
         return MAP_VAL(NULL, 0);
     }
 
@@ -107,7 +109,7 @@ map_val_t get(hashmap_t *self, map_key_t key) {
     int probe_range = self->capacity;
     int i = 0;
 
-    while(!is_same_key(cur_map_node->key, key) && cur_map_node->tombstone){
+    while(is_same_key(cur_map_node->key, key) && cur_map_node->tombstone==false){
         i++;
         index++;
         if(i >= probe_range){
@@ -117,6 +119,7 @@ map_val_t get(hashmap_t *self, map_key_t key) {
                 pthread_mutex_unlock(&self->write_lock);
             }
             pthread_mutex_unlock(&self->fields_lock);
+            debug("return 2");
             return MAP_VAL(NULL, 0);
         }
 
@@ -124,6 +127,7 @@ map_val_t get(hashmap_t *self, map_key_t key) {
         cur_map_node = first_map_node+index;
 
     }
+
     //debug("I %d index %d range %d", i, index, probe_range);
 
     pthread_mutex_lock(&self->fields_lock);
@@ -133,6 +137,7 @@ map_val_t get(hashmap_t *self, map_key_t key) {
     }
     //pthread_mutex_unlock(&self->write_lock);
     pthread_mutex_unlock(&self->fields_lock);
+    debug("return given key %d cur key %d", *(int *)key.key_base, *(int *)(cur_map_node->val).val_base);
     return cur_map_node->val;
 }
 

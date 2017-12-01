@@ -40,6 +40,7 @@ uint32_t jenkins_hash(map_key_t map_key) {
     return hash;
 }
 
+
 void map_init(void) {
     global_map = create_map(NUM_THREADS, jenkins_hash, map_free_function);
 }
@@ -47,9 +48,7 @@ void map_init(void) {
 void *thread_put(void *arg) {
     map_insert_t *insert = (map_insert_t *) arg;
 
-    //debug("Inserting key %d", *(int *)insert->key_ptr);
     put(global_map, MAP_KEY(insert->key_ptr, sizeof(int)), MAP_VAL(insert->val_ptr, sizeof(int)), false);
-    //debug("Size of map %u", global_map->size);
     return NULL;
 }
 
@@ -150,10 +149,8 @@ Test(map_suite, 03_get, .timeout = 2, .init = map_init, .fini = map_fini) {
     val.val_base = val_ptr;
 
     // Compare what we have to what we expect.
-
     int compare = memcmp(retrieved_val.val_base, val.val_base, val.val_len);
     cr_assert_eq(compare, 0, "Keys do not match");
-
 
 }
 
@@ -176,10 +173,10 @@ Test(map_suite, 04_deletion, .timeout = 2, .init = map_init, .fini = map_fini) {
             exit(EXIT_FAILURE);
     }
 
-
     for(int index = 0; index < NUM_THREADS; index++) {
         pthread_join(thread_ids[index], NULL);
     }
+    printf("NUM: %d\n", global_map->size);
 
     for(int index = 0; index < NUM_THREADS; index++) {
         int *key_ptr = malloc(sizeof(int));
@@ -208,7 +205,6 @@ Test(map_suite, 05_put_get, .timeout = 2, .init = map_init, .fini = map_fini) {
 
     // put
     for(int index = 0; index < 5; index++){
-
         int *key_ptr = malloc(sizeof(int));
         int *val_ptr = malloc(sizeof(int));
         *key_ptr = index;
@@ -220,9 +216,9 @@ Test(map_suite, 05_put_get, .timeout = 2, .init = map_init, .fini = map_fini) {
         map_val_t val;
         val = get(global_map,MAP_KEY(insert->key_ptr, sizeof(int)));
 
-        int *val_of_val;
-        val_of_val = (int *)(val.val_base);
-        cr_assert_eq(*val_of_val, index*2, "Expected %d and got %d.", index*2,val_of_val);
+        int val_of_val;
+        val_of_val = *(int *)(val.val_base);
+        cr_assert_eq(val_of_val, index*2, "PUT GET i %d Expected %d and got %d.", index*2,val_of_val);
     }
 
     int num_items = global_map->size;
@@ -240,12 +236,15 @@ Test(map_suite, 05_put_get, .timeout = 2, .init = map_init, .fini = map_fini) {
 
         map_val_t val;
         val = get(global_map,MAP_KEY(insert->key_ptr, sizeof(int)));
-        if(val.val_len);
+        //if(val.val_len);
 
-        int *val_of_val;
-        val_of_val = (int *)(val.val_base);
-        cr_assert_eq(*val_of_val, index*2, "Expected %d and got %d.", index*2,val_of_val);
+        int val_of_val;
+        val_of_val = *(int *)(val.val_base);
+        cr_assert_eq(val_of_val, index*2, "GET i %d Expected %d and got %d.", index, index*2,val_of_val);
     }
+
+    num_items = global_map->size;
+    cr_assert_eq(num_items, 5, "Had %d items in map that has a capacity of %d. Expected %d ", num_items, global_map->capacity, 5);
 
 }
 
@@ -292,3 +291,29 @@ Test(map_suite, 06_clear, .timeout = 2, .init = map_init, .fini = map_fini){
     // int num_items = global_map->size;
     // cr_assert_eq(num_items, 0, "Had %d items in map. Expected %d", num_items, 0);
 }
+
+
+/*Test(map_suite, 07_put_delete_get, .timeout = 2, .init = map_init, .fini = map_fini) {
+
+
+    int index = 5;
+    int *key_ptr = malloc(sizeof(int));
+    int *val_ptr = malloc(sizeof(int));
+    *key_ptr = index;
+    *val_ptr = index * 2;
+
+    map_insert_t *insert = malloc(sizeof(map_insert_t));
+    insert->key_ptr = key_ptr;
+    insert->val_ptr = val_ptr;
+
+    // PUT
+    put(global_map, MAP_KEY(insert->key_ptr, sizeof(int)), MAP_VAL(insert->val_ptr, sizeof(int)), false);
+
+    // DELETE
+    //delete(global_map, MAP_KEY(insert->key_ptr, sizeof(int)));
+
+    // GET
+    map_val_t val = get(global_map, MAP_KEY(insert->key_ptr, sizeof(int)));
+    int val_val = atoi(val.val_base);
+    cr_assert_eq(val_val, 10, "Expected: %d\nGot: %d", 10, val_val);
+}*/
