@@ -20,7 +20,7 @@ void evict_request(int connfd, request_header_t *request_header, response_header
 void clear_request(int connfd, request_header_t *request_header, response_header_t *response_header);
 void invalid_request(int connfd, request_header_t *request_header, response_header_t *response_header);
 
-//ssize_t Write(int fd, const void *bu, size_t count);
+ssize_t My_Write(int fd, const void *buf, size_t count);
 
 struct sockaddr_storage clientaddr;
 queue_t *global_queue;
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     int NUM_WORKERS = atoi(argv[1]);
     char* PORT_NUMBER = (argv[2]);
     uint32_t MAX_ENTRIES = atoi(argv[3]);
-    int listenfd, *connfd = Calloc(1, sizeof(int));
+    int listenfd;
     socklen_t clientlen;
 
     pthread_t *tid = calloc(NUM_WORKERS, sizeof(pthread_t));
@@ -52,21 +52,23 @@ int main(int argc, char *argv[]) {
     global_map = create_map(MAX_ENTRIES, jenkins_one_at_a_time_hash, map_free_function);
 
     for(int i = 0; i < NUM_WORKERS; i++) /* Create worker threads */
-    Pthread_create (&tid[i], NULL, thread, NULL) ;
+        pthread_create (&tid[i], NULL, thread, NULL) ;
 
     while (1) {
+        int *connfd = Calloc(1, sizeof(int));
         clientlen = sizeof(struct sockaddr_storage);
         *connfd = Accept(listenfd, (SA*) &clientaddr, &clientlen);
-        debug("Before enqueue %d", *connfd);
+
         enqueue(global_queue, connfd);
+        debug("Before enqueue %d", *connfd);
     }
 
     exit(0);
 }
 
 void *thread(void *vargp){
-    //Pthread_detach(pthread_self());
     while (1) {
+
         int *connfd = (int *)dequeue(global_queue); /* Remove connfd from buffer */
         debug("After dequeue %d", *connfd);
 
@@ -81,12 +83,12 @@ void *thread(void *vargp){
             case GET: get_request(*connfd, req_header, response_header); break;
             case EVICT: evict_request(*connfd, req_header, response_header); break;
             case CLEAR: clear_request(*connfd, req_header, response_header); break;
-            //default: invalid_request(*connfd, req_header, response_header); break;
+            default: invalid_request(*connfd, req_header, response_header); break;
         }
         //free(req_header);
         //free(response_header);
         debug("Fd %d", *connfd);
-        Close (*connfd);
+        close (*connfd);
     }
 
 }
@@ -104,7 +106,7 @@ void put_request(int connfd, request_header_t *request_header, response_header_t
     if(!is_valid_header(key.key_len, val.val_len)){
         response_header->response_code = BAD_REQUEST;
         response_header->value_size = 0;
-        write(connfd, response_header, sizeof(response_header_t));
+        My_Write(connfd, response_header, sizeof(response_header_t));
         return;
     }
 
@@ -115,7 +117,7 @@ void put_request(int connfd, request_header_t *request_header, response_header_t
     OK : BAD_REQUEST;
     if(!success) response_header->value_size = 0;
 
-    write(connfd, response_header, sizeof(response_header_t));
+    My_Write(connfd, response_header, sizeof(response_header_t));
 }
 
 void get_request(int connfd, request_header_t *request_header, response_header_t *response_header){
@@ -127,7 +129,7 @@ void get_request(int connfd, request_header_t *request_header, response_header_t
     if(!is_valid_key(key.key_len)){
         response_header->response_code = BAD_REQUEST;
         response_header->value_size = 0;
-        write(connfd, response_header, sizeof(response_header_t));
+        My_Write(connfd, response_header, sizeof(response_header_t));
         return;
     }
 
@@ -139,8 +141,8 @@ void get_request(int connfd, request_header_t *request_header, response_header_t
         response_header->response_code = OK;
         response_header->value_size = map_val.val_len;
     }
-    write(connfd, response_header, sizeof(response_header_t));
-    write(connfd, map_val.val_base, map_val.val_len);
+    My_Write(connfd, response_header, sizeof(response_header_t));
+    My_Write(connfd, map_val.val_base, map_val.val_len);
 
 }
 
@@ -153,7 +155,7 @@ void evict_request(int connfd, request_header_t *request_header, response_header
     if(!is_valid_key(key.key_len)){
         response_header->response_code = BAD_REQUEST;
         response_header->value_size = 0;
-        write(connfd, response_header, sizeof(response_header_t));
+        My_Write(connfd, response_header, sizeof(response_header_t));
         return;
     }
 
@@ -162,7 +164,7 @@ void evict_request(int connfd, request_header_t *request_header, response_header
 
     response_header->response_code = OK;
     response_header->value_size = 0;
-    write(connfd, response_header, sizeof(response_header_t));
+    My_Write(connfd, response_header, sizeof(response_header_t));
 }
 
 void clear_request(int connfd, request_header_t *request_header, response_header_t *response_header){
@@ -170,13 +172,13 @@ void clear_request(int connfd, request_header_t *request_header, response_header
     clear_map(global_map);
     response_header->response_code = OK;
     response_header->value_size = 0;
-    write(connfd, response_header, sizeof(response_header_t));
+    My_Write(connfd, response_header, sizeof(response_header_t));
 }
 
 void invalid_request(int connfd, request_header_t *request_header, response_header_t *response_header){
     response_header->response_code = UNSUPPORTED;
     response_header->value_size = 0;
-    write(connfd, response_header, sizeof(response_header_t));
+    My_Write(connfd, response_header, sizeof(response_header_t));
 }
 
 bool is_valid_header(size_t key_size, size_t val_size){
@@ -196,20 +198,24 @@ bool is_valid_value(size_t val_size){
     return true;
 }
 
-// ssize_t Write(int fd, const void *buf, size_t count){
-//     size_t nleft = count;
-//     ssize_t nwritten;
-//     const char *bufp = buf;
+ssize_t My_Write(int fd, const void *buf, size_t count){
+    size_t nleft = count;
+    ssize_t nwritten;
+    const char *bufp = buf;
 
-//     while (nleft > 0) {
-//         if ((nwritten = write(fd, bufp, nleft)) <= 0) {
-//             if (errno == EINTR)  Interrupted by sig handler return
-//                 nwritten = 0;   /* and call write() again */
-//             else
-//                 return -1; /* errno set by write() */
-//         }
-//         nleft -= nwritten;
-//         bufp += nwritten;
-//     }
-//     return count;
-// }
+    while (nleft > 0) {
+        if ((nwritten = write(fd, bufp, nleft)) <= 0) {
+            if (errno == EINTR) // Interrupted by sig handler return
+                nwritten = 0;   /* and call write() again */
+            else if(errno == EPIPE){
+                debug("EPIPE");
+                close(fd);
+            }
+            else
+                return -1; /* errno set by write() */
+        }
+        nleft -= nwritten;
+        bufp += nwritten;
+    }
+    return count;
+}
