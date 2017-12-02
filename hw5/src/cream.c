@@ -34,10 +34,23 @@ void map_free_function(map_key_t key, map_val_t val) {
 
 int main(int argc, char *argv[]) {
     signal(SIGPIPE, SIG_IGN);
-    if (argc != 4) {
+    if(argc == 1) {
         fprintf (stderr, "usage: %s <port>\n", argv[0]);
-        exit(0);
+        exit(EXIT_FAILURE);
+    } else {
+        if(strcmp(argv[1], "-h")==0) {
+            printf("-h                 Displays this help menu and returns EXIT_SUCCESS.\n"
+                    "NUM_WORKERS       The number of worker threads used to service requests.\n"
+                    "PORT_NUMBER       Port number to listen on for incoming connections.\n"
+                    "MAX_ENTRIES       The maximum number of entries that can be stored in `cream` underlying data store.\n");
+            exit(EXIT_SUCCESS);
+        }
+        else if(argc > 4){
+            fprintf (stderr, "usage: %s <port>\n", argv[0]);
+            exit(EXIT_FAILURE);
+        }
     }
+
     int NUM_WORKERS = atoi(argv[1]);
     char* PORT_NUMBER = (argv[2]);
     uint32_t MAX_ENTRIES = atoi(argv[3]);
@@ -72,8 +85,8 @@ void *thread(void *vargp){
         int *connfd = (int *)dequeue(global_queue); /* Remove connfd from buffer */
         debug("After dequeue %d", *connfd);
 
-        request_header_t *req_header = Calloc(1, sizeof(request_header_t));
-        response_header_t *response_header = Calloc(1, sizeof(response_header_t));
+        request_header_t *req_header = calloc(1, sizeof(request_header_t));
+        response_header_t *response_header = calloc(1, sizeof(response_header_t));
 
         read(*connfd, req_header, sizeof(request_header_t));
         debug("KEY SIZE %u", req_header->key_size);
@@ -94,10 +107,10 @@ void *thread(void *vargp){
 }
 
 void put_request(int connfd, request_header_t *request_header, response_header_t *response_header){
-    void *keys = Calloc(1, request_header->key_size);
+    void *keys = calloc(1, request_header->key_size);
     read(connfd, keys, request_header->key_size);
 
-    void *vals = Calloc(1, request_header->value_size);
+    void *vals = calloc(1, request_header->value_size);
     read(connfd, vals, request_header->value_size);
     debug("KEY SIZE %u", request_header->key_size);
     map_key_t key = MAP_KEY(keys, request_header->key_size);
@@ -122,7 +135,7 @@ void put_request(int connfd, request_header_t *request_header, response_header_t
 
 void get_request(int connfd, request_header_t *request_header, response_header_t *response_header){
 
-    void *keys = Calloc(1, request_header->key_size);
+    void *keys = calloc(1, request_header->key_size);
     read(connfd, keys, request_header->key_size);
     map_key_t key = MAP_KEY(keys, request_header->key_size);
 
@@ -147,7 +160,7 @@ void get_request(int connfd, request_header_t *request_header, response_header_t
 }
 
 void evict_request(int connfd, request_header_t *request_header, response_header_t *response_header){
-    void *keys = Calloc(1, request_header->key_size);
+    void *keys = calloc(1, request_header->key_size);
     read(connfd, keys, request_header->key_size);
 
     map_key_t key = MAP_KEY(keys, request_header->key_size);
