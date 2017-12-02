@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     while (1) {
         clientlen = sizeof(struct sockaddr_storage);
         *connfd = Accept(listenfd, (SA*) &clientaddr, &clientlen);
-        debug("HERE");
+        debug("Before enqueue %d", *connfd);
         enqueue(global_queue, connfd);
     }
 
@@ -65,10 +65,10 @@ int main(int argc, char *argv[]) {
 }
 
 void *thread(void *vargp){
-    Pthread_detach(pthread_self());
-    int *connfd;
+    //Pthread_detach(pthread_self());
     while (1) {
-        connfd = (int *)dequeue(global_queue); /* Remove connfd from buffer */
+        int *connfd = (int *)dequeue(global_queue); /* Remove connfd from buffer */
+        debug("After dequeue %d", *connfd);
 
         request_header_t *req_header = Calloc(1, sizeof(request_header_t));
         response_header_t *response_header = Calloc(1, sizeof(response_header_t));
@@ -86,9 +86,9 @@ void *thread(void *vargp){
         //free(req_header);
         //free(response_header);
         debug("Fd %d", *connfd);
-
+        Close (*connfd);
     }
-    Close (*connfd);
+
 }
 
 void put_request(int connfd, request_header_t *request_header, response_header_t *response_header){

@@ -93,8 +93,9 @@ int handle_request(char *hostname, char *port, char *input) {
             goto bad;
         }
 
-        return handle_test(Open_clientfd(hostname, port),
-                           Open_clientfd(hostname, port), key, value);
+        int fd1 = Open_clientfd(hostname, port);
+        int fd2 = Open_clientfd(hostname, port);
+        return handle_test(fd1, fd2, key, value);
     } else if (!strcmp(request, QUIT)) {
         return -1;
     }

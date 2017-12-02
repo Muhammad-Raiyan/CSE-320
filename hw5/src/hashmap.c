@@ -160,7 +160,7 @@ map_val_t get(hashmap_t *self, map_key_t key) {
             break;
         }
     }
-
+    debug("HERE 4");
     if(!found) {
         pthread_mutex_lock(&self->fields_lock);
         self->num_readers--;
@@ -172,7 +172,7 @@ map_val_t get(hashmap_t *self, map_key_t key) {
         return MAP_VAL(NULL, 0);
     }
     //debug("I %d index %d range %d", i, index, probe_range);
-
+    debug("HERE 5");
     pthread_mutex_lock(&self->fields_lock);
     self->num_readers--;
     if(self->num_readers == 0){

@@ -120,3 +120,44 @@ Test(queue_suite, 03_dequeue, .timeout = 2, .init = queue_init, .fini = queue_fi
     cr_assert_null(global_queue->front, "After all elements have been dequeued front should be null");
     cr_assert_null(global_queue->rear, "After all elements have been dequeued rear should be null");
 }
+
+Test(queue_suite, 04_fifo, .timeout = 2, .init = queue_init, .fini = queue_fini) {
+    pthread_t thread_ids[NUM_THREADS];
+
+    // spawn NUM_THREADS threads to enqueue elements
+    for(int index = 0; index < NUM_THREADS; index++) {
+        int *ptr = malloc(sizeof(int));
+        *ptr = index;
+
+        if(pthread_create(&thread_ids[index], NULL, thread_enqueue, ptr) != 0)
+            exit(EXIT_FAILURE);
+    }
+
+    // wait for threads to die before checking queue
+    for(int index = 0; index < NUM_THREADS; index++) {
+        // Will hang here sometimes, deadlock?
+        pthread_join(thread_ids[index], NULL);
+    }
+
+
+    // spawn NUM_THREADS threads to enqueue elements
+    for(int index = 0; index < NUM_THREADS; index++) {
+        int *ptr = malloc(sizeof(int));
+        *ptr = index;
+
+        if(pthread_create(&thread_ids[index], NULL, thread_dequeue, ptr) != 0)
+            exit(EXIT_FAILURE);
+    }
+
+    // wait for threads to die before checking queue
+    for(int index = 0; index < NUM_THREADS; index++) {
+        // Will hang here sometimes, deadlock?
+        pthread_join(thread_ids[index], NULL);
+    }
+
+    int num_items = 0;
+    sem_getvalue(&global_queue->items, &num_items);
+    cr_assert_eq(num_items,0, "Dequeue loop did not remove all the nodes");
+    cr_assert_null(global_queue->front, "After all elements have been dequeued front should be null");
+    cr_assert_null(global_queue->rear, "After all elements have been dequeued rear should be null");
+}

@@ -3,13 +3,16 @@
 #include "csapp.h"
 
 queue_t *create_queue(void) {
-    queue_t *new_q = calloc(1, sizeof(queue_t));
-    sem_init(&new_q->items, 0, 0);
-    pthread_mutex_init(&new_q->lock, NULL);
-    new_q->front = NULL;
-    new_q->rear = NULL;
-    new_q->invalid = false;
-    return new_q;
+    queue_t *my_queue = calloc(1, sizeof(queue_t));
+
+    if (my_queue == NULL
+        || pthread_mutex_init(&my_queue->lock, 0) != 0
+        || sem_init(&my_queue->items, 0, 0) != 0)
+    {
+        return NULL;
+    }
+
+    return my_queue;
 }
 
 bool invalidate_queue(queue_t *self, item_destructor_f destroy_function) {
@@ -50,6 +53,7 @@ bool enqueue(queue_t *self, void *item) {
     pthread_mutex_lock(&self->lock);
     if(self->invalid == true){
         errno = EINVAL;
+        pthread_mutex_unlock(&self->lock);
         return false;
     }
     queue_node_t *node = calloc(1, sizeof(*node));
@@ -83,6 +87,8 @@ void *dequeue(queue_t *self) {
 
     if(self->invalid == true){
         errno = EINVAL;
+        V(&self->items);
+        pthread_mutex_unlock(&self->lock);
         return NULL;
     }
 
@@ -95,6 +101,7 @@ void *dequeue(queue_t *self) {
         self->front = self->front->next;
     }
     free(temp);
+
     pthread_mutex_unlock(&self->lock);
     return temp_item;
 }
